@@ -18,7 +18,7 @@ if ($submissionId <= 0) {
 
 $stmt = db()->prepare(
     'SELECT s.id AS submission_id, s.student_name, s.candidate_number, e.title AS exam_title,
-            e.file_name_template, e.folder_name_template, sf.original_name, sf.stored_path,
+            e.file_name_template, e.folder_name_template, e.exam_code, e.id AS exam_id, sf.original_name, sf.stored_path,
             ed.title AS document_title
      FROM submissions s
      JOIN exams e ON e.id = s.exam_id
@@ -57,9 +57,11 @@ foreach ($files as $file) {
         continue;
     }
 
+    $examIdentifier = $file['exam_code'] ?? $file['exam_id'] ?? '';
     $fileName = apply_name_template(
         $file['file_name_template'] ?? '',
         [
+            'exam_id' => $examIdentifier,
             'exam_title' => $file['exam_title'],
             'student_name' => $file['student_name'],
             'candidate_number' => $file['candidate_number'],
@@ -77,10 +79,12 @@ foreach ($files as $file) {
 
 $zip->close();
 
+$examIdentifier = $files[0]['exam_code'] ?? $files[0]['exam_id'] ?? '';
 $baseName = sanitize_name_component($files[0]['exam_title']);
 $folderName = apply_name_template(
     $files[0]['folder_name_template'] ?? '',
     [
+        'exam_id' => $examIdentifier,
         'exam_title' => $files[0]['exam_title'],
         'student_name' => $files[0]['student_name'],
         'candidate_number' => $files[0]['candidate_number'],

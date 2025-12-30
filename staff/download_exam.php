@@ -17,7 +17,7 @@ if ($examId <= 0) {
 }
 
 $stmt = db()->prepare(
-    'SELECT e.title AS exam_title, e.file_name_template, e.folder_name_template,
+    'SELECT e.title AS exam_title, e.file_name_template, e.folder_name_template, e.exam_code, e.id AS exam_id,
             s.id AS submission_id, s.student_name, s.candidate_number,
             sf.original_name, sf.stored_path, ed.title AS document_title
      FROM exams e
@@ -57,9 +57,11 @@ foreach ($files as $file) {
         continue;
     }
 
+    $examIdentifier = $file['exam_code'] ?? $file['exam_id'] ?? '';
     $folder = apply_name_template(
         $file['folder_name_template'] ?? '',
         [
+            'exam_id' => $examIdentifier,
             'exam_title' => $file['exam_title'],
             'student_name' => $file['student_name'],
             'candidate_number' => $file['candidate_number'],
@@ -72,6 +74,7 @@ foreach ($files as $file) {
     $fileName = apply_name_template(
         $file['file_name_template'] ?? '',
         [
+            'exam_id' => $examIdentifier,
             'exam_title' => $file['exam_title'],
             'student_name' => $file['student_name'],
             'candidate_number' => $file['candidate_number'],

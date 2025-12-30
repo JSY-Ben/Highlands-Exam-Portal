@@ -29,6 +29,7 @@ $errors = [];
 $success = false;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $examCode = trim((string) ($_POST['exam_code'] ?? ''));
     $title = trim((string) ($_POST['title'] ?? ''));
     $startTime = trim((string) ($_POST['start_time'] ?? ''));
     $endTime = trim((string) ($_POST['end_time'] ?? ''));
@@ -49,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newDocs = array_values(array_filter(array_map('trim', $newDocs)));
     $deleteDocs = array_map('intval', $deleteDocs);
 
-    if ($title === '' || !$startDt || !$endDt) {
-        $errors[] = 'Title, start time, and end time are required.';
+    if ($examCode === '' || $title === '' || !$startDt || !$endDt) {
+        $errors[] = 'Exam ID, title, start time, and end time are required.';
     }
 
     if ($startDt && $endDt && $endDt < $startDt) {
@@ -82,11 +83,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $stmt = $pdo->prepare(
                 'UPDATE exams
-                 SET title = ?, start_time = ?, end_time = ?, buffer_pre_minutes = ?, buffer_post_minutes = ?,
+                 SET exam_code = ?, title = ?, start_time = ?, end_time = ?, buffer_pre_minutes = ?, buffer_post_minutes = ?,
                      file_name_template = ?, folder_name_template = ?
                  WHERE id = ?'
             );
             $stmt->execute([
+                $examCode,
                 $title,
                 $startDt->format('Y-m-d H:i:s'),
                 $endDt->format('Y-m-d H:i:s'),
@@ -187,6 +189,11 @@ try {
             <form method="post">
                 <input type="hidden" name="delete_confirmed" id="delete-confirmed" value="0">
                 <div class="mb-3">
+                    <label class="form-label">Exam ID</label>
+                    <input class="form-control" type="text" name="exam_code" value="<?php echo e((string) $exam['exam_code']); ?>" required>
+                </div>
+
+                <div class="mb-3">
                     <label class="form-label">Exam Title</label>
                     <input class="form-control" type="text" name="title" value="<?php echo e((string) $exam['title']); ?>" required>
                 </div>
@@ -250,14 +257,28 @@ try {
 
                 <div class="mt-4">
                     <label class="form-label">File name template</label>
-                    <input class="form-control" type="text" name="file_name_template" value="<?php echo e((string) ($exam['file_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{document_title}_{original_name}">
-                    <div class="form-text">Tokens: {exam_title}, {student_name}, {candidate_number}, {document_title}, {original_name}, {submission_id}</div>
+                    <input class="form-control" type="text" name="file_name_template" id="edit-file-template" value="<?php echo e((string) ($exam['file_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{document_title}_{original_name}">
+                    <div class="form-text d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{exam_id}">{exam_id}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{exam_title}">{exam_title}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{student_name}">{student_name}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{candidate_number}">{candidate_number}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{document_title}">{document_title}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{original_name}">{original_name}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{submission_id}">{submission_id}</button>
+                    </div>
                 </div>
 
                 <div class="mt-3">
                     <label class="form-label">Folder name template</label>
-                    <input class="form-control" type="text" name="folder_name_template" value="<?php echo e((string) ($exam['folder_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{student_name}">
-                    <div class="form-text">Used when downloading all submissions.</div>
+                    <input class="form-control" type="text" name="folder_name_template" id="edit-folder-template" value="<?php echo e((string) ($exam['folder_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{student_name}">
+                    <div class="form-text d-flex flex-wrap gap-2">
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{exam_id}">{exam_id}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{exam_title}">{exam_title}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{student_name}">{student_name}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{candidate_number}">{candidate_number}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{submission_id}">{submission_id}</button>
+                    </div>
                 </div>
 
                 <div class="d-flex gap-2 mt-4">
@@ -329,6 +350,19 @@ try {
         deleteConfirmed.value = '1';
         deleteConfirmModal.hide();
         form.submit();
+    });
+
+    document.querySelectorAll('.token-btn').forEach((button) => {
+        button.addEventListener('click', () => {
+            const targetId = button.dataset.target;
+            const token = button.dataset.token || '';
+            const input = document.getElementById(targetId);
+            if (!input) {
+                return;
+            }
+            input.value = input.value + token;
+            input.focus();
+        });
     });
 </script>
 </body>

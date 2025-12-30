@@ -100,9 +100,11 @@ try {
 
         $file = $_FILES[$key];
         $originalName = $file['name'];
+        $examIdentifier = $exam['exam_code'] ?? $exam['id'];
         $baseName = apply_name_template(
             $exam['file_name_template'] ?? '',
             [
+                'exam_id' => $examIdentifier,
                 'exam_title' => $exam['title'],
                 'student_name' => $studentName,
                 'candidate_number' => $candidateNumber,

@@ -1,5 +1,6 @@
 CREATE TABLE exams (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    exam_code VARCHAR(100) NOT NULL,
     title VARCHAR(255) NOT NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,

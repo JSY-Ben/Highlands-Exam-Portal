@@ -33,6 +33,13 @@ ALTER TABLE exams
     ADD COLUMN folder_name_template VARCHAR(255) NULL;
 ```
 
+If you already created tables before adding the exam ID field, run:
+
+```sql
+ALTER TABLE exams
+    ADD COLUMN exam_code VARCHAR(100) NULL;
+```
+
 ## Notes
 
 - File uploads are stored under `uploads/exam_{id}/submission_{id}`.
