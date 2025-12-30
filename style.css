@@ -9,6 +9,9 @@
 
 body {
     background: linear-gradient(180deg, var(--portal-bg-1), var(--portal-bg-2));
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
     color: var(--portal-text);
 }
 
