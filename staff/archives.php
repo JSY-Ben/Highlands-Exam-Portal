@@ -87,7 +87,7 @@ uasort($students, function (array $a, array $b): int {
 });
 $pageTitle = 'Archived Submissions - ' . $exam['title'];
 $brandHref = 'index.php';
-$brandText = 'Staff';
+$brandText = 'Exams Submissions Portal';
 $logoPath = '../logo.png';
 $cssPath = '../style.css';
 $navActions = '<a class="btn btn-outline-secondary btn-sm" href="../index.php">Student View</a>'
