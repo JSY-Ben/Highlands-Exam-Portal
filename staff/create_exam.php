@@ -112,7 +112,8 @@ $brandHref = 'index.php';
 $brandText = 'Staff';
 $logoPath = '../logo.png';
 $cssPath = '../style.css';
-$navActions = '<a class="btn btn-outline-secondary btn-sm" href="index.php">Back to exams</a>';
+$navActions = '<a class="btn btn-outline-secondary btn-sm" href="../index.php">Student View</a>'
+    . '<a class="btn btn-outline-secondary btn-sm" href="index.php">Back to exams</a>';
 require __DIR__ . '/../header.php';
 ?>
 <main class="container py-4">
