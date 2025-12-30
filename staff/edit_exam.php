@@ -331,15 +331,15 @@ try {
                             <div class="row g-2">
                                 <div class="col-md-4">
                                     <label class="form-label">Document title</label>
-                                    <input class="form-control" type="text" name="new_documents_title[]" placeholder="Activity">
+                                    <input class="form-control" type="text" name="new_documents_title[]" data-example="Activity" value="Activity">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Student note</label>
-                                    <input class="form-control" type="text" name="new_documents_note[]" placeholder="Optional note for students">
+                                    <input class="form-control" type="text" name="new_documents_note[]" data-example="Make sure to convert to PDF first" value="Make sure to convert to PDF first">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">Allowed file types</label>
-                                    <input class="form-control" type="text" name="new_documents_types[]" placeholder="pdf, docx">
+                                    <input class="form-control" type="text" name="new_documents_types[]" data-example="pdf, docx" value="pdf, docx">
                                     <div class="form-text">Comma-separated extensions.</div>
                                 </div>
                                 <div class="col-12">
@@ -356,7 +356,8 @@ try {
 
                 <div class="mt-4">
                     <label class="form-label">File name template</label>
-                    <input class="form-control" type="text" name="file_name_template" id="edit-file-template" value="<?php echo e((string) ($exam['file_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{document_title}_{original_name}">
+                    <input class="form-control" type="text" name="file_name_template" id="edit-file-template" data-example="{candidate_number}_{document_title}_{original_name}" value="<?php echo e((string) ($exam['file_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{document_title}_{original_name}">
+                    <div class="form-text">Example template shown; click to clear.</div>
                     <div class="form-text d-flex flex-wrap gap-2">
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{exam_id}">{exam_id}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{exam_title}">{exam_title}</button>
@@ -373,7 +374,8 @@ try {
 
                 <div class="mt-3">
                     <label class="form-label">Folder name template</label>
-                    <input class="form-control" type="text" name="folder_name_template" id="edit-folder-template" value="<?php echo e((string) ($exam['folder_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{student_surname}">
+                    <input class="form-control" type="text" name="folder_name_template" id="edit-folder-template" data-example="{candidate_number}_{student_surname}" value="<?php echo e((string) ($exam['folder_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{student_surname}">
+                    <div class="form-text">Example template shown; click to clear.</div>
                     <div class="form-text d-flex flex-wrap gap-2">
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{exam_id}">{exam_id}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{exam_title}">{exam_title}</button>
@@ -424,6 +426,33 @@ try {
     const confirmDeleteDocs = document.getElementById('confirmDeleteDocs');
     const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
 
+    const exampleInputs = new Set();
+
+    const initExampleInput = (input) => {
+        if (!input || exampleInputs.has(input)) {
+            return;
+        }
+        exampleInputs.add(input);
+        if (input.value.trim() === '') {
+            input.value = input.dataset.example || '';
+            input.classList.add('text-muted');
+        }
+        input.addEventListener('focus', () => {
+            if (input.value === input.dataset.example) {
+                input.value = '';
+                input.classList.remove('text-muted');
+            }
+        });
+        input.addEventListener('blur', () => {
+            if (input.value.trim() === '') {
+                input.value = input.dataset.example || '';
+                input.classList.add('text-muted');
+            }
+        });
+    };
+
+    document.querySelectorAll('[data-example]').forEach(initExampleInput);
+
     let newDocIndex = 1;
 
     addButton.addEventListener('click', () => {
@@ -433,15 +462,15 @@ try {
             <div class="row g-2">
                 <div class="col-md-4">
                     <label class="form-label">Document title</label>
-                    <input class="form-control" type="text" name="new_documents_title[]" placeholder="Activity">
+                    <input class="form-control" type="text" name="new_documents_title[]" data-example="Activity" value="Activity">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Student note</label>
-                    <input class="form-control" type="text" name="new_documents_note[]" placeholder="Optional note for students">
+                    <input class="form-control" type="text" name="new_documents_note[]" data-example="Make sure to convert to PDF first" value="Make sure to convert to PDF first">
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Allowed file types</label>
-                    <input class="form-control" type="text" name="new_documents_types[]" placeholder="pdf, docx">
+                    <input class="form-control" type="text" name="new_documents_types[]" data-example="pdf, docx" value="pdf, docx">
                     <div class="form-text">Comma-separated extensions.</div>
                 </div>
                 <div class="col-12">
@@ -453,6 +482,7 @@ try {
             </div>
         `;
         documentList.appendChild(wrapper);
+        wrapper.querySelectorAll('[data-example]').forEach(initExampleInput);
         newDocIndex += 1;
     });
 
@@ -478,6 +508,23 @@ try {
         deleteConfirmed.value = '1';
         deleteConfirmModal.hide();
         form.submit();
+    });
+
+    form.addEventListener('submit', (event) => {
+        let invalid = false;
+        exampleInputs.forEach((input) => {
+            if (input.value === input.dataset.example) {
+                if (input.hasAttribute('required')) {
+                    invalid = true;
+                }
+                input.value = '';
+                input.classList.remove('text-muted');
+            }
+        });
+        if (invalid) {
+            event.preventDefault();
+            alert('Please replace the example text in required fields.');
+        }
     });
 
     document.querySelectorAll('.token-btn').forEach((button) => {
