@@ -152,14 +152,39 @@ $exams = $stmt->fetchAll();
 
                         <div class="row g-3">
                             <div class="col-md-6">
+                                <label class="form-label">Start Date</label>
+                                <input class="form-control" type="date" id="start-date" required>
+                            </div>
+                            <div class="col-md-6">
                                 <label class="form-label">Start Time</label>
-                                <input class="form-control" type="datetime-local" name="start_time" required>
+                                <div class="input-group">
+                                    <input class="form-control" type="text" id="start-time" placeholder="hh:mm" required>
+                                    <select class="form-select" id="start-ampm">
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-1">
+                            <div class="col-md-6">
+                                <label class="form-label">End Date</label>
+                                <input class="form-control" type="date" id="end-date" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">End Time</label>
-                                <input class="form-control" type="datetime-local" name="end_time" required>
+                                <div class="input-group">
+                                    <input class="form-control" type="text" id="end-time" placeholder="hh:mm" required>
+                                    <select class="form-select" id="end-ampm">
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
+                        <input type="hidden" name="start_time" id="start-time-hidden" required>
+                        <input type="hidden" name="end_time" id="end-time-hidden" required>
 
                         <div class="row g-3 mt-1">
                             <div class="col-md-6">
@@ -266,6 +291,15 @@ $exams = $stmt->fetchAll();
 <script>
     const addButton = document.getElementById('add-document');
     const documentList = document.getElementById('document-list');
+    const form = document.querySelector('form');
+    const startDate = document.getElementById('start-date');
+    const startTime = document.getElementById('start-time');
+    const startAmpm = document.getElementById('start-ampm');
+    const endDate = document.getElementById('end-date');
+    const endTime = document.getElementById('end-time');
+    const endAmpm = document.getElementById('end-ampm');
+    const startHidden = document.getElementById('start-time-hidden');
+    const endHidden = document.getElementById('end-time-hidden');
 
     addButton.addEventListener('click', () => {
         const input = document.createElement('input');
@@ -274,6 +308,41 @@ $exams = $stmt->fetchAll();
         input.placeholder = 'Activity';
         input.className = 'form-control';
         documentList.appendChild(input);
+    });
+
+    const to24Hour = (value, period) => {
+        const parts = value.split(':');
+        if (parts.length !== 2) {
+            return null;
+        }
+        let hours = parseInt(parts[0], 10);
+        const minutes = parseInt(parts[1], 10);
+        if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+            return null;
+        }
+        if (hours < 1 || hours > 12 || minutes < 0 || minutes > 59) {
+            return null;
+        }
+        if (period === 'AM') {
+            hours = hours === 12 ? 0 : hours;
+        } else {
+            hours = hours === 12 ? 12 : hours + 12;
+        }
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    };
+
+    form.addEventListener('submit', (event) => {
+        const start = to24Hour(startTime.value.trim(), startAmpm.value);
+        const end = to24Hour(endTime.value.trim(), endAmpm.value);
+
+        if (!startDate.value || !endDate.value || !start || !end) {
+            event.preventDefault();
+            alert('Please enter valid start and end dates and times (hh:mm AM/PM).');
+            return;
+        }
+
+        startHidden.value = `${startDate.value}T${start}`;
+        endHidden.value = `${endDate.value}T${end}`;
     });
 
     document.querySelectorAll('.token-btn').forEach((button) => {
