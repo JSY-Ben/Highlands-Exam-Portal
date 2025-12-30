@@ -1,5 +1,7 @@
 # ExamSubs
 
+ExamSubs is a lightweight web portal for managing exam submissions. Students can upload required files through a simple intake flow, while staff can define exams, collect submissions, and review uploaded materials from a dedicated dashboard. The system keeps uploads organized per exam and submission to make retrieval and auditing straightforward.
+
 ## Setup
 
 1. Create a MySQL database (default name `exam_portal`).
@@ -15,60 +17,36 @@ source schema.sql;
    - Student view: `/index.php`
    - Staff view: `/staff/index.php`
 
-## Updating Existing Databases
-
-If you already created tables before the completed-exam feature, run:
-
-```sql
-ALTER TABLE exams
-    ADD COLUMN is_completed TINYINT(1) NOT NULL DEFAULT 0,
-    ADD COLUMN completed_at DATETIME NULL;
-```
-
-If you already created tables before the naming-template feature, run:
-
-```sql
-ALTER TABLE exams
-    ADD COLUMN file_name_template VARCHAR(255) NULL,
-    ADD COLUMN folder_name_template VARCHAR(255) NULL;
-```
-
-If you already created tables before adding the exam ID field, run:
-
-```sql
-ALTER TABLE exams
-    ADD COLUMN exam_code VARCHAR(100) NOT NULL DEFAULT '';
-```
-
-If you already created tables before splitting student names, run:
-
-```sql
-ALTER TABLE submissions
-    ADD COLUMN student_first_name VARCHAR(100) NOT NULL DEFAULT '',
-    ADD COLUMN student_last_name VARCHAR(100) NOT NULL DEFAULT '';
-```
-
-If you already created tables before adding examiner notes, run:
-
-```sql
-ALTER TABLE submissions
-    ADD COLUMN examiner_note TEXT NULL;
-```
-
-If you already created tables before document notes and file type rules, run:
-
-```sql
-ALTER TABLE exam_documents
-    ADD COLUMN student_note VARCHAR(500) NULL,
-    ADD COLUMN require_file_type TINYINT(1) NOT NULL DEFAULT 0,
-    ADD COLUMN allowed_file_types VARCHAR(255) NULL;
-```
-
 ## Notes
 
 - File uploads are stored under `uploads/exam_{id}/submission_{id}`.
 - Configure PHP upload limits (`upload_max_filesize`, `post_max_size`) if needed.
 
-## Staff Authentication
+## Staff Authentication (Microsoft Entra)
 
-See `README-auth.md` for Microsoft Entra setup.
+### Required Config
+
+Update the `entra` section in `config.php`:
+
+- `tenant_id`
+- `client_id`
+- `client_secret`
+- `redirect_uri` (set to your site URL + `/auth/callback.php`)
+
+Example redirect URI:
+
+```
+https://your-domain.example.com/auth/callback.php
+```
+
+### App Registration Settings
+
+- Single-tenant
+- Web platform
+- Redirect URI as above
+- API permissions: `openid`, `profile`, `email`
+
+### Notes
+
+- All `/staff/*` pages require authentication.
+- Logout clears the local session.
