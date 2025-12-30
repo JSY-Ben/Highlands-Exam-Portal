@@ -46,6 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $bufferPre = (int) ($_POST['buffer_pre_minutes'] ?? 0);
     $bufferPost = (int) ($_POST['buffer_post_minutes'] ?? 0);
     $documents = $_POST['documents'] ?? [];
+    $fileNameTemplate = trim((string) ($_POST['file_name_template'] ?? ''));
+    $folderNameTemplate = trim((string) ($_POST['folder_name_template'] ?? ''));
 
     $documents = array_values(array_filter(array_map('trim', (array) $documents)));
 
@@ -70,7 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
             $stmt = $pdo->prepare(
-                'INSERT INTO exams (title, start_time, end_time, buffer_pre_minutes, buffer_post_minutes, created_at) VALUES (?, ?, ?, ?, ?, ?)'
+                'INSERT INTO exams (title, start_time, end_time, buffer_pre_minutes, buffer_post_minutes, file_name_template, folder_name_template, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
             );
             $stmt->execute([
                 $title,
@@ -78,6 +81,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $endDt->format('Y-m-d H:i:s'),
                 $bufferPre,
                 $bufferPost,
+                $fileNameTemplate !== '' ? $fileNameTemplate : null,
+                $folderNameTemplate !== '' ? $folderNameTemplate : null,
                 now_utc_string(),
             ]);
 
@@ -166,6 +171,18 @@ $exams = $stmt->fetchAll();
                                 <input class="form-control" type="text" name="documents[]" placeholder="Activity 1" required>
                             </div>
                             <button class="btn btn-outline-secondary btn-sm mt-2" type="button" id="add-document">Add another document</button>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label">File name template</label>
+                            <input class="form-control" type="text" name="file_name_template" placeholder="{candidate_number}_{document_title}_{original_name}">
+                            <div class="form-text">Tokens: {exam_title}, {student_name}, {candidate_number}, {document_title}, {original_name}, {submission_id}</div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="form-label">Folder name template</label>
+                            <input class="form-control" type="text" name="folder_name_template" placeholder="{candidate_number}_{student_name}">
+                            <div class="form-text">Used when downloading all submissions.</div>
                         </div>
 
                         <button class="btn btn-primary mt-3" type="submit">Create Exam</button>

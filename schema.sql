@@ -7,6 +7,8 @@ CREATE TABLE exams (
     buffer_post_minutes INT NOT NULL DEFAULT 0,
     is_completed TINYINT(1) NOT NULL DEFAULT 0,
     completed_at DATETIME NULL,
+    file_name_template VARCHAR(255) NULL,
+    folder_name_template VARCHAR(255) NULL,
     created_at DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

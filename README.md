@@ -25,6 +25,14 @@ ALTER TABLE exams
     ADD COLUMN completed_at DATETIME NULL;
 ```
 
+If you already created tables before the naming-template feature, run:
+
+```sql
+ALTER TABLE exams
+    ADD COLUMN file_name_template VARCHAR(255) NULL,
+    ADD COLUMN folder_name_template VARCHAR(255) NULL;
+```
+
 ## Notes
 
 - File uploads are stored under `uploads/exam_{id}/submission_{id}`.

@@ -36,3 +36,41 @@ function format_datetime_display(string $value): string
 
     return $dt->format('d/m/Y g:i A');
 }
+
+function apply_name_template(?string $template, array $data, string $fallback): string
+{
+    $template = trim((string) $template);
+    if ($template === '') {
+        $template = $fallback;
+    }
+
+    $value = preg_replace_callback('/\\{([a-z_]+)\\}/i', function (array $matches) use ($data) {
+        $key = strtolower($matches[1]);
+        return isset($data[$key]) ? (string) $data[$key] : '';
+    }, $template);
+
+    $value = trim($value);
+    return $value !== '' ? $value : $fallback;
+}
+
+function sanitize_name_component(string $value): string
+{
+    $value = preg_replace('/[^A-Za-z0-9._-]+/', '_', $value);
+    $value = trim($value, '._-');
+    return $value !== '' ? $value : 'file';
+}
+
+function ensure_original_extension(string $value, string $originalName): string
+{
+    $originalExt = pathinfo($originalName, PATHINFO_EXTENSION);
+    if ($originalExt === '') {
+        return $value;
+    }
+
+    $currentExt = pathinfo($value, PATHINFO_EXTENSION);
+    if ($currentExt === '') {
+        return $value . '.' . $originalExt;
+    }
+
+    return $value;
+}

@@ -100,7 +100,21 @@ try {
 
         $file = $_FILES[$key];
         $originalName = $file['name'];
-        $storedName = uniqid('file_', true) . '_' . basename($originalName);
+        $baseName = apply_name_template(
+            $exam['file_name_template'] ?? '',
+            [
+                'exam_title' => $exam['title'],
+                'student_name' => $studentName,
+                'candidate_number' => $candidateNumber,
+                'document_title' => $doc['title'],
+                'original_name' => $originalName,
+                'submission_id' => (string) $submissionId,
+            ],
+            $originalName
+        );
+        $baseName = ensure_original_extension($baseName, $originalName);
+        $baseName = sanitize_name_component($baseName);
+        $storedName = uniqid('file_', true) . '_' . $baseName;
         $storedPath = $submissionFolder . '/' . $storedName;
 
         if (!move_uploaded_file($file['tmp_name'], $storedPath)) {
