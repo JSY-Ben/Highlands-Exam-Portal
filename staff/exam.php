@@ -183,7 +183,7 @@ foreach ($rows as $row) {
                     <button class="btn btn-outline-primary btn-sm" type="submit">Reopen</button>
                 </form>
             <?php endif; ?>
-            <a class="btn btn-outline-secondary btn-sm" href="edit_exam.php?id=<?php echo (int) $exam['id']; ?>">Edit templates</a>
+            <a class="btn btn-outline-secondary btn-sm" href="edit_exam.php?id=<?php echo (int) $exam['id']; ?>">Edit exam</a>
             <a class="btn btn-outline-secondary btn-sm" href="archives.php?id=<?php echo (int) $exam['id']; ?>">Archived submissions</a>
             <?php if ($hasFiles): ?>
                 <a class="btn btn-outline-primary btn-sm" href="download_exam.php?exam_id=<?php echo (int) $exam['id']; ?>">Download all submissions</a>
