@@ -160,7 +160,7 @@ $exams = $stmt->fetchAll();
                     </select>
                 </div>
                 <div class="col-12 d-grid">
-                    <button class="btn btn-outline-primary" type="submit">Search</button>
+                    <button class="btn btn-primary" type="submit">Search</button>
                 </div>
                 <div class="col-12">
                     <a class="btn btn-link px-0" href="index.php">Reset filters</a>
