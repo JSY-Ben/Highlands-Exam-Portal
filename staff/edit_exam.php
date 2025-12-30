@@ -346,7 +346,7 @@ require __DIR__ . '/../header.php';
                 </div>
 
                 <div class="mt-4">
-                    <label class="form-label">File name template</label>
+                    <label class="form-label">Submitted Document Naming Convention</label>
                     <input class="form-control" type="text" name="file_name_template" id="edit-file-template" data-example="{candidate_number}_{document_title}_{original_name}" value="<?php echo e((string) ($exam['file_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{document_title}_{original_name}">
                     <div class="form-text">Example template shown; click to clear.</div>
                     <div class="form-text d-flex flex-wrap gap-2">
@@ -364,7 +364,7 @@ require __DIR__ . '/../header.php';
                 </div>
 
                 <div class="mt-3">
-                    <label class="form-label">Folder name template</label>
+                    <label class="form-label">Folder Naming Convention</label>
                     <input class="form-control" type="text" name="folder_name_template" id="edit-folder-template" data-example="{candidate_number}_{student_surname}" value="<?php echo e((string) ($exam['folder_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{student_surname}">
                     <div class="form-text">Example template shown; click to clear.</div>
                     <div class="form-text d-flex flex-wrap gap-2">
