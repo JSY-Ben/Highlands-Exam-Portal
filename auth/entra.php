@@ -146,33 +146,33 @@ function entra_asn1_length(int $length): string
     if ($length <= 0x7f) {
         return chr($length);
     }
-    $temp = ltrim(pack('N', $length), \"\\x00\");
+    $temp = ltrim(pack('N', $length), "\x00");
     return chr(0x80 | strlen($temp)) . $temp;
 }
 
 function entra_asn1_integer(string $value): string
 {
     if (ord($value[0]) > 0x7f) {
-        $value = \"\\x00\" . $value;
+        $value = "\x00" . $value;
     }
-    return \"\\x02\" . entra_asn1_length(strlen($value)) . $value;
+    return "\x02" . entra_asn1_length(strlen($value)) . $value;
 }
 
 function entra_jwk_to_pem(array $key): string
 {
     $modulus = entra_base64url_decode($key['n']);
     $exponent = entra_base64url_decode($key['e']);
-    $rsaKey = \"\\x30\" . entra_asn1_length(strlen(entra_asn1_integer($modulus)) + strlen(entra_asn1_integer($exponent)))
+    $rsaKey = "\x30" . entra_asn1_length(strlen(entra_asn1_integer($modulus)) + strlen(entra_asn1_integer($exponent)))
         . entra_asn1_integer($modulus)
         . entra_asn1_integer($exponent);
 
-    $bitString = \"\\x03\" . entra_asn1_length(strlen($rsaKey) + 1) . \"\\x00\" . $rsaKey;
-    $algId = \"\\x30\\x0d\\x06\\x09\\x2a\\x86\\x48\\x86\\xf7\\x0d\\x01\\x01\\x01\\x05\\x00\";
-    $spki = \"\\x30\" . entra_asn1_length(strlen($algId) + strlen($bitString)) . $algId . $bitString;
+    $bitString = "\x03" . entra_asn1_length(strlen($rsaKey) + 1) . "\x00" . $rsaKey;
+    $algId = "\x30\x0d\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01\x05\x00";
+    $spki = "\x30" . entra_asn1_length(strlen($algId) + strlen($bitString)) . $algId . $bitString;
 
-    $pem = \"-----BEGIN PUBLIC KEY-----\\n\";
-    $pem .= chunk_split(base64_encode($spki), 64, \"\\n\");
-    $pem .= \"-----END PUBLIC KEY-----\\n\";
+    $pem = "-----BEGIN PUBLIC KEY-----\n";
+    $pem .= chunk_split(base64_encode($spki), 64, "\n");
+    $pem .= "-----END PUBLIC KEY-----\n";
     return $pem;
 }
 
