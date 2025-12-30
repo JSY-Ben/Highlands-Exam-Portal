@@ -49,6 +49,7 @@ $stmt->execute([$examId]);
 $rows = $stmt->fetchAll();
 
 $submissions = [];
+$hasFiles = false;
 foreach ($rows as $row) {
     $submissionId = (int) $row['id'];
     if (!isset($submissions[$submissionId])) {
@@ -60,6 +61,7 @@ foreach ($rows as $row) {
 
     if (!empty($row['file_id'])) {
         $submissions[$submissionId]['files'][] = $row;
+        $hasFiles = true;
     }
 }
 ?>
@@ -101,6 +103,9 @@ foreach ($rows as $row) {
                     <button class="btn btn-outline-primary btn-sm" type="submit">Reopen</button>
                 </form>
             <?php endif; ?>
+            <?php if ($hasFiles): ?>
+                <a class="btn btn-outline-primary btn-sm" href="download_exam.php?exam_id=<?php echo (int) $exam['id']; ?>">Download all submissions</a>
+            <?php endif; ?>
             <a class="btn btn-outline-secondary btn-sm" href="index.php">Back to list</a>
         </div>
     </div>
@@ -139,12 +144,22 @@ foreach ($rows as $row) {
                         <?php if (count($submission['files']) === 0): ?>
                             <p class="text-muted mb-0">No files uploaded.</p>
                         <?php else: ?>
-                            <div class="list-group">
-                                <?php foreach ($submission['files'] as $file): ?>
-                                    <a class="list-group-item list-group-item-action" href="download.php?id=<?php echo (int) $file['file_id']; ?>">
-                                        <?php echo e($file['document_title']); ?> — <?php echo e($file['original_name']); ?>
-                                    </a>
-                                <?php endforeach; ?>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Download individual files
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <?php foreach ($submission['files'] as $file): ?>
+                                            <li>
+                                                <a class="dropdown-item" href="download.php?id=<?php echo (int) $file['file_id']; ?>">
+                                                    <?php echo e($file['document_title']); ?> — <?php echo e($file['original_name']); ?>
+                                                </a>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                                <a class="btn btn-outline-primary btn-sm" href="download_submission.php?submission_id=<?php echo (int) $submission['info']['id']; ?>">Download all files</a>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -153,5 +168,7 @@ foreach ($rows as $row) {
         </div>
     </div>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
