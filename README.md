@@ -48,6 +48,13 @@ ALTER TABLE submissions
     ADD COLUMN student_last_name VARCHAR(100) NOT NULL DEFAULT '';
 ```
 
+If you already created tables before adding examiner notes, run:
+
+```sql
+ALTER TABLE submissions
+    ADD COLUMN examiner_note TEXT NULL;
+```
+
 If you already created tables before document notes and file type rules, run:
 
 ```sql

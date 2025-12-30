@@ -34,6 +34,7 @@ CREATE TABLE submissions (
     student_first_name VARCHAR(100) NOT NULL,
     student_last_name VARCHAR(100) NOT NULL,
     candidate_number VARCHAR(100) NOT NULL,
+    examiner_note TEXT NULL,
     submitted_at DATETIME NOT NULL,
     ip_address VARCHAR(45) NOT NULL,
     CONSTRAINT fk_submissions_exam

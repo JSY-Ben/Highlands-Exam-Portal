@@ -77,6 +77,10 @@ require __DIR__ . '/header.php';
                     <input class="form-control" type="text" name="candidate_number" required>
                 </div>
             </div>
+            <div class="mb-3">
+                <label class="form-label">Note to Examiner</label>
+                <textarea class="form-control" name="examiner_note" rows="3" placeholder="Please put anything you wish the examiner to know about this submission here"></textarea>
+            </div>
 
             <div class="mb-3">
                 <h2 class="h6">Required Documents</h2>
@@ -90,7 +94,14 @@ require __DIR__ . '/header.php';
                                 $accept = build_accept_attribute($doc['allowed_file_types'] ?? '');
                             }
                             ?>
-                            <input class="form-control" type="file" name="file_<?php echo (int) $doc['id']; ?>" <?php echo $accept !== '' ? 'accept="' . e($accept) . '"' : ''; ?>>
+                            <input class="form-control file-input" type="file" data-doc-id="<?php echo (int) $doc['id']; ?>" name="file_<?php echo (int) $doc['id']; ?>" <?php echo $accept !== '' ? 'accept="' . e($accept) . '"' : ''; ?>>
+                            <input type="hidden" name="uploaded_token_<?php echo (int) $doc['id']; ?>" id="uploaded-token-<?php echo (int) $doc['id']; ?>" value="">
+                            <div class="progress mt-2 d-none" id="progress-<?php echo (int) $doc['id']; ?>">
+                                <div class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+                            </div>
+                            <div class="form-text text-success d-none" id="status-<?php echo (int) $doc['id']; ?>">Upload complete.</div>
+                            <div class="form-text text-danger d-none" id="error-<?php echo (int) $doc['id']; ?>"></div>
+                            <button class="btn btn-outline-danger btn-sm mt-2 d-none remove-upload" type="button" data-doc-id="<?php echo (int) $doc['id']; ?>">Remove uploaded file</button>
                             <?php if (!empty($doc['student_note'])): ?>
                                 <div class="form-text"><?php echo e($doc['student_note']); ?></div>
                             <?php endif; ?>
@@ -170,6 +181,155 @@ require __DIR__ . '/header.php';
         pendingSubmit = true;
         missingFilesModal.hide();
         form.submit();
+    });
+
+    const examId = <?php echo (int) $exam['id']; ?>;
+    const uploadInputs = document.querySelectorAll('.file-input');
+    const pendingUploads = new Set();
+    const removeButtons = document.querySelectorAll('.remove-upload');
+
+    uploadInputs.forEach((input) => {
+        input.addEventListener('change', () => {
+            const docId = input.dataset.docId;
+            if (!docId || !input.files || input.files.length === 0) {
+                return;
+            }
+
+            const file = input.files[0];
+            const progress = document.getElementById(`progress-${docId}`);
+            const bar = progress?.querySelector('.progress-bar');
+            const status = document.getElementById(`status-${docId}`);
+            const error = document.getElementById(`error-${docId}`);
+            const tokenInput = document.getElementById(`uploaded-token-${docId}`);
+            const removeButton = document.querySelector(`.remove-upload[data-doc-id="${docId}"]`);
+
+            if (progress) {
+                progress.classList.remove('d-none');
+            }
+            if (status) {
+                status.classList.add('d-none');
+            }
+            if (error) {
+                error.classList.add('d-none');
+                error.textContent = '';
+            }
+            if (bar) {
+                bar.style.width = '0%';
+                bar.textContent = '0%';
+            }
+            if (removeButton) {
+                removeButton.classList.add('d-none');
+            }
+
+            const formData = new FormData();
+            formData.append('exam_id', examId);
+            formData.append('doc_id', docId);
+            formData.append('file', file);
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'upload_temp.php');
+            pendingUploads.add(docId);
+
+            xhr.upload.addEventListener('progress', (event) => {
+                if (!event.lengthComputable || !bar) {
+                    return;
+                }
+                const percent = Math.round((event.loaded / event.total) * 100);
+                bar.style.width = `${percent}%`;
+                bar.textContent = `${percent}%`;
+            });
+
+            xhr.addEventListener('load', () => {
+                if (!tokenInput) {
+                    return;
+                }
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                        const response = JSON.parse(xhr.responseText);
+                        if (response.token) {
+                            tokenInput.value = response.token;
+                            if (status) {
+                                status.classList.remove('d-none');
+                            }
+                            if (bar) {
+                                bar.style.width = '100%';
+                                bar.textContent = '100%';
+                            }
+                            if (removeButton) {
+                                removeButton.classList.remove('d-none');
+                            }
+                            pendingUploads.delete(docId);
+                            return;
+                        }
+                    } catch (e) {
+                        // fall through
+                    }
+                }
+                tokenInput.value = '';
+                if (error) {
+                    error.textContent = 'Upload failed. Please try again.';
+                    error.classList.remove('d-none');
+                }
+                pendingUploads.delete(docId);
+            });
+
+            xhr.addEventListener('error', () => {
+                if (error) {
+                    error.textContent = 'Upload failed. Please try again.';
+                    error.classList.remove('d-none');
+                }
+                pendingUploads.delete(docId);
+            });
+
+            xhr.send(formData);
+        });
+    });
+
+    removeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            const docId = button.dataset.docId;
+            const tokenInput = document.getElementById(`uploaded-token-${docId}`);
+            const progress = document.getElementById(`progress-${docId}`);
+            const bar = progress?.querySelector('.progress-bar');
+            const status = document.getElementById(`status-${docId}`);
+            const error = document.getElementById(`error-${docId}`);
+            const input = document.querySelector(`.file-input[data-doc-id="${docId}"]`);
+
+            const token = tokenInput?.value || '';
+            if (token !== '') {
+                const formData = new FormData();
+                formData.append('token', token);
+                fetch('delete_temp.php', { method: 'POST', body: formData }).catch(() => {});
+            }
+
+            if (tokenInput) {
+                tokenInput.value = '';
+            }
+            if (input) {
+                input.value = '';
+            }
+            if (bar) {
+                bar.style.width = '0%';
+                bar.textContent = '0%';
+            }
+            if (progress) {
+                progress.classList.add('d-none');
+            }
+            if (status) {
+                status.classList.add('d-none');
+            }
+            if (error) {
+                error.classList.add('d-none');
+            }
+            button.classList.add('d-none');
+        });
+    });
+
+    form.addEventListener('submit', (event) => {
+        if (pendingUploads.size > 0) {
+            event.preventDefault();
+            alert('Please wait for all uploads to finish before submitting.');
+        }
     });
 </script>
 <?php require __DIR__ . '/footer.php'; ?>

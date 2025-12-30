@@ -12,6 +12,7 @@ $examId = (int) ($_POST['exam_id'] ?? 0);
 $studentFirstName = trim((string) ($_POST['student_first_name'] ?? ''));
 $studentLastName = trim((string) ($_POST['student_last_name'] ?? ''));
 $candidateNumber = trim((string) ($_POST['candidate_number'] ?? ''));
+$examinerNote = trim((string) ($_POST['examiner_note'] ?? ''));
 $confirmed = isset($_POST['confirm_final']);
 
 if ($examId <= 0 || $studentFirstName === '' || $studentLastName === '' || $candidateNumber === '' || !$confirmed) {
@@ -46,10 +47,23 @@ if (count($documents) === 0) {
     exit;
 }
 
+$tmpDir = $uploadsDir . '/tmp';
+$tokens = [];
+foreach ($documents as $doc) {
+    $tokenKey = 'uploaded_token_' . $doc['id'];
+    $tokenValue = trim((string) ($_POST[$tokenKey] ?? ''));
+    if ($tokenValue !== '' && preg_match('/^[a-f0-9]{32}$/', $tokenValue)) {
+        $tokens[$doc['id']] = $tokenValue;
+    }
+}
+
 $fileTypeErrors = [];
 foreach ($documents as $doc) {
     $key = 'file_' . $doc['id'];
     if (!isset($_FILES[$key]) || $_FILES[$key]['error'] !== UPLOAD_ERR_OK) {
+        if (isset($tokens[$doc['id']])) {
+            continue;
+        }
         continue;
     }
 
@@ -75,6 +89,9 @@ $uploadedCount = 0;
 foreach ($documents as $doc) {
     $key = 'file_' . $doc['id'];
     if (!isset($_FILES[$key])) {
+        if (isset($tokens[$doc['id']])) {
+            $uploadedCount++;
+        }
         continue;
     }
 
@@ -101,13 +118,14 @@ $pdo = db();
 $pdo->beginTransaction();
 
 try {
-    $stmt = $pdo->prepare('INSERT INTO submissions (exam_id, student_name, student_first_name, student_last_name, candidate_number, submitted_at, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)');
+    $stmt = $pdo->prepare('INSERT INTO submissions (exam_id, student_name, student_first_name, student_last_name, candidate_number, examiner_note, submitted_at, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
     $stmt->execute([
         $examId,
         $studentName,
         $studentFirstName,
         $studentLastName,
         $candidateNumber,
+        $examinerNote !== '' ? $examinerNote : null,
         now_utc_string(),
         (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'),
     ]);
@@ -126,6 +144,65 @@ try {
 
     foreach ($documents as $doc) {
         $key = 'file_' . $doc['id'];
+        if (isset($tokens[$doc['id']])) {
+            $token = $tokens[$doc['id']];
+            $metaPath = $tmpDir . '/' . $token . '.json';
+            $tmpPath = $tmpDir . '/' . $token . '.upload';
+
+            if (!is_file($metaPath) || !is_file($tmpPath)) {
+                throw new RuntimeException('Missing uploaded file.');
+            }
+
+            $metaRaw = file_get_contents($metaPath);
+            $meta = $metaRaw !== false ? json_decode($metaRaw, true) : null;
+            if (!is_array($meta) || (int) ($meta['exam_id'] ?? 0) !== $examId || (int) ($meta['doc_id'] ?? 0) !== (int) $doc['id']) {
+                throw new RuntimeException('Upload mismatch.');
+            }
+
+            $originalName = (string) ($meta['original_name'] ?? 'upload');
+            $fileSize = (int) ($meta['file_size'] ?? 0);
+            $examIdentifier = $exam['exam_code'] ?? $exam['id'];
+            $baseName = apply_name_template(
+                $exam['file_name_template'] ?? '',
+                [
+                    'exam_id' => $examIdentifier,
+                    'exam_title' => $exam['title'],
+                    'student_firstname' => $studentFirstName,
+                    'student_surname' => $studentLastName,
+                    'student_firstname_initial' => $firstInitial,
+                    'student_surname_initial' => $lastInitial,
+                    'candidate_number' => $candidateNumber,
+                    'document_title' => $doc['title'],
+                    'original_name' => $originalName,
+                    'submission_id' => (string) $submissionId,
+                ],
+                $originalName
+            );
+            $baseName = ensure_original_extension($baseName, $originalName);
+            $baseName = sanitize_name_component($baseName);
+            $storedName = uniqid('file_', true) . '_' . $baseName;
+            $storedPath = $submissionFolder . '/' . $storedName;
+
+            if (!@rename($tmpPath, $storedPath)) {
+                if (!@copy($tmpPath, $storedPath)) {
+                    throw new RuntimeException('Failed to store upload.');
+                }
+                @unlink($tmpPath);
+            }
+
+            @unlink($metaPath);
+            $relativePath = str_replace($uploadsDir . '/', '', $storedPath);
+
+            $insertFile->execute([
+                $submissionId,
+                $doc['id'],
+                $originalName,
+                $storedName,
+                $relativePath,
+                $fileSize,
+            ]);
+            continue;
+        }
         if (!isset($_FILES[$key]) || $_FILES[$key]['error'] !== UPLOAD_ERR_OK) {
             continue;
         }

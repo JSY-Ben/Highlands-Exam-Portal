@@ -217,6 +217,11 @@ foreach ($rows as $row) {
                                     ?>
                                 </div>
                                 <small class="text-muted">Candidate: <?php echo e($submission['info']['candidate_number']); ?></small>
+                                <?php if (!empty($submission['info']['examiner_note'])): ?>
+                                    <div class="text-muted small mt-1">
+                                        <strong>Note:</strong> <?php echo e($submission['info']['examiner_note']); ?>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                             <div class="d-flex gap-2 align-items-center">
                                 <small class="text-muted">Submitted: <?php echo e(format_datetime_display($submission['info']['submitted_at'])); ?></small>
