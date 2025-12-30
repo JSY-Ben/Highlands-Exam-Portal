@@ -1,10 +1,10 @@
 :root {
-    --portal-bg-1: #f7f2ea;
-    --portal-bg-2: #efe7db;
-    --portal-panel: #fffaf3;
-    --portal-border: #d9cdbf;
-    --portal-accent: #b4834a;
-    --portal-text: #3a2e1f;
+    --portal-bg-1: #f5fbff;
+    --portal-bg-2: #eef6f2;
+    --portal-panel: #ffffff;
+    --portal-border: #c9dde8;
+    --portal-accent: #1f7a8c;
+    --portal-text: #1f2a32;
 }
 
 body {
@@ -26,8 +26,8 @@ body {
 }
 
 .card {
-    background-color: #fff;
-    box-shadow: 0 8px 20px rgba(60, 41, 22, 0.08);
+    background-color: #ffffff;
+    box-shadow: 0 8px 20px rgba(31, 122, 140, 0.12);
 }
 
 .list-group-item {
@@ -41,14 +41,14 @@ body {
 
 .form-control,
 .form-select {
-    background-color: #fffef9;
+    background-color: #ffffff;
     border-color: var(--portal-border);
 }
 
 .form-control:focus,
 .form-select:focus {
     border-color: var(--portal-accent);
-    box-shadow: 0 0 0 0.2rem rgba(180, 131, 74, 0.2);
+    box-shadow: 0 0 0 0.2rem rgba(31, 122, 140, 0.2);
 }
 
 .form-label {
@@ -56,7 +56,7 @@ body {
 }
 
 .btn-primary {
-    box-shadow: 0 6px 14px rgba(180, 131, 74, 0.25);
+    box-shadow: 0 6px 14px rgba(31, 122, 140, 0.25);
 }
 
 .alert {
