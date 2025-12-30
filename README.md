@@ -1,5 +1,7 @@
 # ExamSubs
 
+![ScreenshotOfApp](https://github.com/user-attachments/assets/e9ccb11a-2b5e-4c53-ace7-a801fcfe383f)
+
 ExamSubs is a lightweight PHP/MySQL web portal for managing exam submissions for an education institution. Students can upload required files through a simple form, while staff can define exams, collect submissions, and review uploaded materials from a dedicated dashboard. The system keeps uploads organised by exam and submission to make retrieval and auditing straightforward.
 
 ## Setup
@@ -31,7 +33,7 @@ This app is setup to use Microsoft Entra authentication to access the Exam Admin
 
 `openid`, `profile`, `email`
 
-### Using the 'Enterprise Applications' section of Microsoft Entra, i highly recommend you restrict usage of this application to only trusted staff members by enabling the 'Assignment required?' option in the Properties of the app in Entra, and then using the 'Users and Groups' tab to assign trusted users.
+Using the 'Enterprise Applications' section of Microsoft Entra, i highly recommend you restrict usage of this application to only trusted staff members by enabling the 'Assignment required?' option in the Properties of the app in Entra, and then using the 'Users and Groups' tab to assign trusted users.
 
 ### Once you have setup an app registration, configure the the `entra` section in `config.php`:
 
