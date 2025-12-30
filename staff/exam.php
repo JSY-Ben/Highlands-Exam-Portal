@@ -210,7 +210,7 @@ foreach ($rows as $row) {
             <?php else: ?>
                 <?php foreach ($submissions as $submission): ?>
                     <div class="border rounded p-3 mb-3">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-2 gap-2">
                             <div>
                                 <div class="fw-semibold">
                                     <?php
@@ -225,7 +225,7 @@ foreach ($rows as $row) {
                                     </div>
                                 <?php endif; ?>
                             </div>
-                            <div class="d-flex gap-2 align-items-center">
+                            <div class="d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center">
                                 <small class="text-muted">Submitted: <?php echo e(format_datetime_display($submission['info']['submitted_at'])); ?></small>
                                 <form method="post" onsubmit="return confirm('Reset this submission so the student can submit again? Existing files will be archived.');">
                                     <input type="hidden" name="action" value="reset_submission">
