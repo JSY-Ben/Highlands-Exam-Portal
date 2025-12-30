@@ -7,7 +7,7 @@ require __DIR__ . '/helpers.php';
 
 $now = new DateTimeImmutable('now');
 
-$stmt = db()->query('SELECT * FROM exams ORDER BY start_time ASC');
+$stmt = db()->query('SELECT * FROM exams WHERE is_completed = 0 ORDER BY start_time ASC');
 $exams = [];
 foreach ($stmt->fetchAll() as $exam) {
     if (exam_is_active($exam, $now)) {

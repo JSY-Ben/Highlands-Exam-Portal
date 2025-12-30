@@ -14,6 +14,10 @@ function now_utc_string(): string
 
 function exam_is_active(array $exam, DateTimeImmutable $now): bool
 {
+    if (!empty($exam['is_completed'])) {
+        return false;
+    }
+
     $start = new DateTimeImmutable($exam['start_time']);
     $end = new DateTimeImmutable($exam['end_time']);
 

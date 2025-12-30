@@ -15,6 +15,16 @@ source schema.sql;
    - Student view: `/index.php`
    - Staff view: `/staff/index.php`
 
+## Updating Existing Databases
+
+If you already created tables before the completed-exam feature, run:
+
+```sql
+ALTER TABLE exams
+    ADD COLUMN is_completed TINYINT(1) NOT NULL DEFAULT 0,
+    ADD COLUMN completed_at DATETIME NULL;
+```
+
 ## Notes
 
 - File uploads are stored under `uploads/exam_{id}/submission_{id}`.

@@ -8,6 +8,28 @@ require __DIR__ . '/../helpers.php';
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = (string) ($_POST['action'] ?? '');
+
+    if ($action === 'delete') {
+        $examId = (int) ($_POST['exam_id'] ?? 0);
+        if ($examId > 0) {
+            $stmt = db()->prepare('DELETE FROM exams WHERE id = ?');
+            $stmt->execute([$examId]);
+        }
+        header('Location: index.php');
+        exit;
+    }
+
+    if ($action === 'complete') {
+        $examId = (int) ($_POST['exam_id'] ?? 0);
+        if ($examId > 0) {
+            $stmt = db()->prepare('UPDATE exams SET is_completed = 1, completed_at = ? WHERE id = ?');
+            $stmt->execute([now_utc_string(), $examId]);
+        }
+        header('Location: index.php');
+        exit;
+    }
+
     $title = trim((string) ($_POST['title'] ?? ''));
     $startTime = trim((string) ($_POST['start_time'] ?? ''));
     $endTime = trim((string) ($_POST['end_time'] ?? ''));
@@ -152,15 +174,32 @@ $exams = $stmt->fetchAll();
                     <?php else: ?>
                         <div class="list-group list-group-flush">
                             <?php foreach ($exams as $exam): ?>
-                                <a class="list-group-item list-group-item-action" href="exam.php?id=<?php echo (int) $exam['id']; ?>">
+                                <div class="list-group-item">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <div class="fw-semibold"><?php echo e($exam['title']); ?></div>
                                             <small class="text-muted"><?php echo e(format_datetime_display($exam['start_time'])); ?> to <?php echo e(format_datetime_display($exam['end_time'])); ?></small>
+                                            <?php if (!empty($exam['is_completed'])): ?>
+                                                <span class="badge text-bg-success ms-2">Completed</span>
+                                            <?php endif; ?>
                                         </div>
-                                        <span class="badge text-bg-secondary">View</span>
+                                        <div class="d-flex gap-2">
+                                            <a class="btn btn-outline-secondary btn-sm" href="exam.php?id=<?php echo (int) $exam['id']; ?>">View</a>
+                                            <?php if (empty($exam['is_completed'])): ?>
+                                                <form method="post">
+                                                    <input type="hidden" name="action" value="complete">
+                                                    <input type="hidden" name="exam_id" value="<?php echo (int) $exam['id']; ?>">
+                                                    <button class="btn btn-outline-success btn-sm" type="submit">Mark Completed</button>
+                                                </form>
+                                            <?php endif; ?>
+                                            <form method="post" onsubmit="return confirm('Delete this exam and all submissions?');">
+                                                <input type="hidden" name="action" value="delete">
+                                                <input type="hidden" name="exam_id" value="<?php echo (int) $exam['id']; ?>">
+                                                <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+                                            </form>
+                                        </div>
                                     </div>
-                                </a>
+                                </div>
                             <?php endforeach; ?>
                         </div>
                     <?php endif; ?>
