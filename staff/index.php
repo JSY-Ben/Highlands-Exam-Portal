@@ -142,11 +142,11 @@ require __DIR__ . '/../header.php';
             <div class="accordion" id="filterAccordion">
                 <div class="accordion-item">
                     <h2 class="accordion-header" id="filterHeading">
-                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="true" aria-controls="filterCollapse">
                             Search & Filters
                         </button>
                     </h2>
-                    <div id="filterCollapse" class="accordion-collapse collapse" aria-labelledby="filterHeading" data-bs-parent="#filterAccordion">
+                    <div id="filterCollapse" class="accordion-collapse collapse show" aria-labelledby="filterHeading" data-bs-parent="#filterAccordion">
                         <div class="accordion-body">
                             <form class="row g-3" method="get">
                 <div class="col-12">
@@ -208,6 +208,21 @@ require __DIR__ . '/../header.php';
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h4 mb-0">Exams</h1>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const collapseEl = document.getElementById('filterCollapse');
+            if (!collapseEl || typeof bootstrap === 'undefined') {
+                return;
+            }
+            const collapse = new bootstrap.Collapse(collapseEl, { toggle: false });
+            if (window.matchMedia('(max-width: 768px)').matches) {
+                collapse.hide();
+            } else {
+                collapse.show();
+            }
+        });
+    </script>
 
     <div class="card shadow-sm">
         <div class="card-body">
