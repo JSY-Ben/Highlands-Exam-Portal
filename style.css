@@ -26,6 +26,17 @@ body {
     color: #5b6b73;
 }
 
+.accordion-button {
+    font-weight: 700;
+    font-size: 1.05rem;
+    background-color: var(--portal-panel);
+}
+
+.accordion-button:not(.collapsed) {
+    color: #0f4c5c;
+    background-color: #e7f3f6;
+}
+
 .navbar {
     border-bottom-color: var(--portal-border) !important;
 }
