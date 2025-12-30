@@ -41,13 +41,30 @@ if (count($documents) === 0) {
     exit;
 }
 
+$uploadedCount = 0;
 foreach ($documents as $doc) {
     $key = 'file_' . $doc['id'];
-    if (!isset($_FILES[$key]) || $_FILES[$key]['error'] !== UPLOAD_ERR_OK) {
+    if (!isset($_FILES[$key])) {
+        continue;
+    }
+
+    $error = $_FILES[$key]['error'];
+    if ($error === UPLOAD_ERR_OK) {
+        $uploadedCount++;
+        continue;
+    }
+
+    if ($error !== UPLOAD_ERR_NO_FILE) {
         http_response_code(422);
-        echo 'Missing required file: ' . e($doc['title']);
+        echo 'Problem uploading file: ' . e($doc['title']);
         exit;
     }
+}
+
+if ($uploadedCount === 0) {
+    http_response_code(422);
+    echo 'Please upload at least one file.';
+    exit;
 }
 
 $pdo = db();
@@ -77,6 +94,10 @@ try {
 
     foreach ($documents as $doc) {
         $key = 'file_' . $doc['id'];
+        if (!isset($_FILES[$key]) || $_FILES[$key]['error'] !== UPLOAD_ERR_OK) {
+            continue;
+        }
+
         $file = $_FILES[$key];
         $originalName = $file['name'];
         $storedName = uniqid('file_', true) . '_' . basename($originalName);
