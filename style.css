@@ -62,6 +62,11 @@ body {
     }
     .submission-actions form {
         display: block;
+        flex: 1 1 100%;
+    }
+    .submission-actions button,
+    .submission-actions a {
+        display: block;
     }
     .submission-actions .btn-sm {
         font-size: 1rem;
