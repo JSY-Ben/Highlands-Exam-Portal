@@ -64,13 +64,18 @@ foreach ($rows as $row) {
 </nav>
 
 <main class="container py-4">
-    <div class="mb-4">
-        <h1 class="h3"><?php echo e($exam['title']); ?></h1>
-        <p class="text-muted">Window: <?php echo e(format_datetime_display($exam['start_time'])); ?> to <?php echo e(format_datetime_display($exam['end_time'])); ?></p>
-        <p class="text-muted">Buffers: <?php echo (int) $exam['buffer_pre_minutes']; ?> mins before, <?php echo (int) $exam['buffer_post_minutes']; ?> mins after</p>
-        <?php if (!empty($exam['is_completed'])): ?>
-            <span class="badge text-bg-success">Completed</span>
-        <?php endif; ?>
+    <div class="mb-4 d-flex justify-content-between align-items-start">
+        <div>
+            <h1 class="h3"><?php echo e($exam['title']); ?></h1>
+            <p class="text-muted">Window: <?php echo e(format_datetime_display($exam['start_time'])); ?> to <?php echo e(format_datetime_display($exam['end_time'])); ?></p>
+            <p class="text-muted">Buffers: <?php echo (int) $exam['buffer_pre_minutes']; ?> mins before, <?php echo (int) $exam['buffer_post_minutes']; ?> mins after</p>
+            <?php if (!empty($exam['is_completed'])): ?>
+                <span class="badge text-bg-success">Completed</span>
+            <?php endif; ?>
+        </div>
+        <div>
+            <a class="btn btn-outline-secondary btn-sm" href="index.php">Back to list</a>
+        </div>
     </div>
 
     <div class="card shadow-sm mb-4">
