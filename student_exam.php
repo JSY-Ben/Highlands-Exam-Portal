@@ -134,6 +134,10 @@ require __DIR__ . '/header.php';
             <button class="btn btn-primary" type="submit">Submit Files</button>
         </div>
     </form>
+    <?php $maxUpload = upload_max_file_size(); ?>
+    <p class="text-muted small mt-4 mb-0">
+        Maximum file size per upload: <?php echo e(format_bytes($maxUpload)); ?>.
+    </p>
 </main>
 
 <div class="modal fade" id="missingFilesModal" tabindex="-1" aria-labelledby="missingFilesLabel" aria-hidden="true">
