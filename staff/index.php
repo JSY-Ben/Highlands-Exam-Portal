@@ -209,7 +209,8 @@ require __DIR__ . '/../header.php';
                                     <?php endif; ?>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <a class="btn btn-outline-secondary btn-sm" href="exam.php?id=<?php echo (int) $exam['id']; ?>">View</a>
+                                    <a class="btn btn-outline-secondary btn-sm" href="exam.php?id=<?php echo (int) $exam['id']; ?>">View Submissions</a>
+                                    <a class="btn btn-outline-secondary btn-sm" href="edit_exam.php?id=<?php echo (int) $exam['id']; ?>">Edit Exam</a>
                                     <?php if (empty($exam['is_completed'])): ?>
                                         <form method="post">
                                             <input type="hidden" name="action" value="complete">
