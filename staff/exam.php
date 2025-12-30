@@ -5,6 +5,9 @@ declare(strict_types=1);
 require __DIR__ . '/../db.php';
 require __DIR__ . '/../helpers.php';
 
+$config = require __DIR__ . '/../config.php';
+$uploadsDir = rtrim($config['uploads_dir'], '/');
+
 $examId = (int) ($_GET['id'] ?? 0);
 
 $stmt = db()->prepare('SELECT * FROM exams WHERE id = ?');
@@ -28,6 +31,83 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'reopen') {
         $stmt = db()->prepare('UPDATE exams SET is_completed = 0, completed_at = NULL WHERE id = ?');
         $stmt->execute([$examId]);
+        header('Location: exam.php?id=' . $examId);
+        exit;
+    }
+    if ($action === 'reset_submission') {
+        $submissionId = (int) ($_POST['submission_id'] ?? 0);
+        if ($submissionId > 0) {
+            $pdo = db();
+            $pdo->beginTransaction();
+            try {
+                $stmt = $pdo->prepare('SELECT * FROM submissions WHERE id = ? AND exam_id = ?');
+                $stmt->execute([$submissionId, $examId]);
+                $submissionInfo = $stmt->fetch();
+
+                $stmt = $pdo->prepare(
+                    'SELECT sf.stored_path
+                     FROM submissions s
+                     JOIN submission_files sf ON sf.submission_id = s.id
+                     WHERE s.id = ? AND s.exam_id = ?'
+                );
+                $stmt->execute([$submissionId, $examId]);
+                $paths = $stmt->fetchAll();
+
+                $stmt = $pdo->prepare('DELETE FROM submissions WHERE id = ? AND exam_id = ?');
+                $stmt->execute([$submissionId, $examId]);
+
+                $pdo->commit();
+
+                $archiveRoot = $uploadsDir . '/archive/exam_' . $examId;
+                $timestamp = (new DateTimeImmutable('now'))->format('Ymd_His');
+                $archiveFolder = $archiveRoot . '/submission_' . $submissionId . '_' . $timestamp;
+                $submissionFolder = null;
+
+                foreach ($paths as $row) {
+                    $path = $uploadsDir . '/' . ltrim($row['stored_path'], '/');
+                    if ($submissionFolder === null) {
+                        $submissionFolder = dirname($path);
+                    }
+                }
+
+                if ($submissionFolder && is_dir($submissionFolder)) {
+                    if (!is_dir($archiveRoot)) {
+                        mkdir($archiveRoot, 0755, true);
+                    }
+
+                    if (!@rename($submissionFolder, $archiveFolder)) {
+                        if (!is_dir($archiveFolder)) {
+                            mkdir($archiveFolder, 0755, true);
+                        }
+                        foreach ($paths as $row) {
+                            $path = $uploadsDir . '/' . ltrim($row['stored_path'], '/');
+                            $realPath = realpath($path);
+                            if ($realPath && strpos($realPath, realpath($uploadsDir)) === 0 && is_file($realPath)) {
+                                $target = $archiveFolder . '/' . basename($realPath);
+                                @rename($realPath, $target);
+                            }
+                        }
+                        @rmdir($submissionFolder);
+                    }
+
+                    if ($submissionInfo) {
+                        $metadata = [
+                            'submission_id' => (int) $submissionInfo['id'],
+                            'student_first_name' => (string) $submissionInfo['student_first_name'],
+                            'student_last_name' => (string) $submissionInfo['student_last_name'],
+                            'student_name' => (string) $submissionInfo['student_name'],
+                            'candidate_number' => (string) $submissionInfo['candidate_number'],
+                            'submitted_at' => (string) $submissionInfo['submitted_at'],
+                            'archived_at' => (new DateTimeImmutable('now'))->format('Y-m-d H:i:s'),
+                        ];
+                        $metaPath = $archiveFolder . '/metadata.json';
+                        @file_put_contents($metaPath, json_encode($metadata, JSON_PRETTY_PRINT));
+                    }
+                }
+            } catch (Throwable $e) {
+                $pdo->rollBack();
+            }
+        }
         header('Location: exam.php?id=' . $examId);
         exit;
     }
@@ -104,6 +184,7 @@ foreach ($rows as $row) {
                 </form>
             <?php endif; ?>
             <a class="btn btn-outline-secondary btn-sm" href="edit_exam.php?id=<?php echo (int) $exam['id']; ?>">Edit templates</a>
+            <a class="btn btn-outline-secondary btn-sm" href="archives.php?id=<?php echo (int) $exam['id']; ?>">Archived submissions</a>
             <?php if ($hasFiles): ?>
                 <a class="btn btn-outline-primary btn-sm" href="download_exam.php?exam_id=<?php echo (int) $exam['id']; ?>">Download all submissions</a>
             <?php endif; ?>
@@ -145,7 +226,14 @@ foreach ($rows as $row) {
                                 </div>
                                 <small class="text-muted">Candidate: <?php echo e($submission['info']['candidate_number']); ?></small>
                             </div>
-                            <small class="text-muted">Submitted: <?php echo e(format_datetime_display($submission['info']['submitted_at'])); ?></small>
+                            <div class="d-flex gap-2 align-items-center">
+                                <small class="text-muted">Submitted: <?php echo e(format_datetime_display($submission['info']['submitted_at'])); ?></small>
+                                <form method="post" onsubmit="return confirm('Reset this submission so the student can submit again? Existing files will be archived.');">
+                                    <input type="hidden" name="action" value="reset_submission">
+                                    <input type="hidden" name="submission_id" value="<?php echo (int) $submission['info']['id']; ?>">
+                                    <button class="btn btn-outline-warning btn-sm" type="submit">Reset submission</button>
+                                </form>
+                            </div>
                         </div>
                         <?php if (count($submission['files']) === 0): ?>
                             <p class="text-muted mb-0">No files uploaded.</p>
