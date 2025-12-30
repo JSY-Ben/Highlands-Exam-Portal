@@ -225,7 +225,7 @@ foreach ($rows as $row) {
                                     </div>
                                 <?php endif; ?>
                             </div>
-                            <div class="d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center">
+                            <div class="d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center submission-actions">
                                 <small class="text-muted">Submitted: <?php echo e(format_datetime_display($submission['info']['submitted_at'])); ?></small>
                                 <form method="post" onsubmit="return confirm('Reset this submission so the student can submit again? Existing files will be archived.');">
                                     <input type="hidden" name="action" value="reset_submission">

@@ -52,6 +52,14 @@ body {
         flex-wrap: wrap;
         gap: 0.5rem;
     }
+    .submission-actions {
+        width: 100%;
+    }
+    .submission-actions form,
+    .submission-actions a,
+    .submission-actions button {
+        width: 100%;
+    }
     .row.g-3 > [class^="col-"] {
         width: 100%;
     }
