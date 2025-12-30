@@ -1,8 +1,8 @@
 <?php
 
-$pageTitle = $pageTitle ?? 'Exam Submission Portal';
+$pageTitle = $pageTitle ?? 'Exams Submission Portal';
 $brandHref = $brandHref ?? 'index.php';
-$brandText = $brandText ?? 'Exam Submission Portal';
+$brandText = $brandText ?? 'Exams Submission Portal';
 $logoPath = $logoPath ?? 'logo.png';
 $cssPath = $cssPath ?? 'style.css';
 $navActions = $navActions ?? '';
@@ -22,7 +22,7 @@ $pageScripts = $pageScripts ?? '';
 <nav class="navbar navbar-expand-lg bg-white border-bottom">
     <div class="container">
         <a class="navbar-brand fw-semibold d-flex align-items-center" href="<?php echo e($brandHref); ?>">
-            <img src="<?php echo e($logoPath); ?>" alt="Highlands logo" class="brand-logo me-2">
+            <img src="<?php echo e($logoPath); ?>" alt="Portal logo" class="brand-logo me-2">
             <?php echo e($brandText); ?>
         </a>
         <?php if ($navActions !== ''): ?>

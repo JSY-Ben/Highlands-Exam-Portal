@@ -1,4 +1,4 @@
-# Highlands Exam Portal
+# ExamSubs
 
 ## Setup
 
