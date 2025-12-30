@@ -44,6 +44,7 @@ $status = (string) ($_GET['status'] ?? 'all');
 $startDate = trim((string) ($_GET['start_date'] ?? ''));
 $endDate = trim((string) ($_GET['end_date'] ?? ''));
 $submissionsFilter = (string) ($_GET['submissions'] ?? 'all');
+$sort = (string) ($_GET['sort'] ?? 'start_desc');
 
 $conditions = [];
 $params = [];
@@ -99,7 +100,23 @@ $sql = 'SELECT * FROM exams';
 if (count($conditions) > 0) {
     $sql .= ' WHERE ' . implode(' AND ', $conditions);
 }
-$sql .= ' ORDER BY start_time DESC';
+$orderBy = 'start_time DESC';
+if ($sort === 'start_asc') {
+    $orderBy = 'start_time ASC';
+} elseif ($sort === 'end_desc') {
+    $orderBy = 'end_time DESC';
+} elseif ($sort === 'end_asc') {
+    $orderBy = 'end_time ASC';
+} elseif ($sort === 'title_asc') {
+    $orderBy = 'title ASC';
+} elseif ($sort === 'title_desc') {
+    $orderBy = 'title DESC';
+} elseif ($sort === 'exam_id_asc') {
+    $orderBy = 'exam_code ASC';
+} elseif ($sort === 'exam_id_desc') {
+    $orderBy = 'exam_code DESC';
+}
+$sql .= ' ORDER BY ' . $orderBy;
 
 $stmt = db()->prepare($sql);
 $stmt->execute($params);
@@ -132,6 +149,19 @@ require __DIR__ . '/../header.php';
                         <option value="upcoming" <?php echo $status === 'upcoming' ? 'selected' : ''; ?>>Upcoming</option>
                         <option value="active" <?php echo $status === 'active' ? 'selected' : ''; ?>>Active</option>
                         <option value="completed" <?php echo $status === 'completed' ? 'selected' : ''; ?>>Completed</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Sort by</label>
+                    <select class="form-select" name="sort">
+                        <option value="start_desc" <?php echo $sort === 'start_desc' ? 'selected' : ''; ?>>Start date (newest)</option>
+                        <option value="start_asc" <?php echo $sort === 'start_asc' ? 'selected' : ''; ?>>Start date (oldest)</option>
+                        <option value="end_desc" <?php echo $sort === 'end_desc' ? 'selected' : ''; ?>>End date (newest)</option>
+                        <option value="end_asc" <?php echo $sort === 'end_asc' ? 'selected' : ''; ?>>End date (oldest)</option>
+                        <option value="title_asc" <?php echo $sort === 'title_asc' ? 'selected' : ''; ?>>Title (A-Z)</option>
+                        <option value="title_desc" <?php echo $sort === 'title_desc' ? 'selected' : ''; ?>>Title (Z-A)</option>
+                        <option value="exam_id_asc" <?php echo $sort === 'exam_id_asc' ? 'selected' : ''; ?>>Exam ID (A-Z)</option>
+                        <option value="exam_id_desc" <?php echo $sort === 'exam_id_desc' ? 'selected' : ''; ?>>Exam ID (Z-A)</option>
                     </select>
                 </div>
                 <div class="col-md-2">
