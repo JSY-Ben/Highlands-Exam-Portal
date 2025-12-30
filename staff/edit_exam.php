@@ -261,7 +261,10 @@ try {
                     <div class="form-text d-flex flex-wrap gap-2">
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{exam_id}">{exam_id}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{exam_title}">{exam_title}</button>
-                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{student_name}">{student_name}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{student_firstname}">{student_firstname}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{student_surname}">{student_surname}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{student_firstname_initial}">{student_firstname_initial}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{student_surname_initial}">{student_surname_initial}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{candidate_number}">{candidate_number}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{document_title}">{document_title}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-file-template" data-token="{original_name}">{original_name}</button>
@@ -271,11 +274,14 @@ try {
 
                 <div class="mt-3">
                     <label class="form-label">Folder name template</label>
-                    <input class="form-control" type="text" name="folder_name_template" id="edit-folder-template" value="<?php echo e((string) ($exam['folder_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{student_name}">
+                    <input class="form-control" type="text" name="folder_name_template" id="edit-folder-template" value="<?php echo e((string) ($exam['folder_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{student_surname}">
                     <div class="form-text d-flex flex-wrap gap-2">
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{exam_id}">{exam_id}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{exam_title}">{exam_title}</button>
-                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{student_name}">{student_name}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{student_firstname}">{student_firstname}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{student_surname}">{student_surname}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{student_firstname_initial}">{student_firstname_initial}</button>
+                        <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{student_surname_initial}">{student_surname_initial}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{candidate_number}">{candidate_number}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{submission_id}">{submission_id}</button>
                     </div>

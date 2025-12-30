@@ -211,7 +211,10 @@ $exams = $stmt->fetchAll();
                             <div class="form-text d-flex flex-wrap gap-2">
                                 <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-file-template" data-token="{exam_id}">{exam_id}</button>
                                 <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-file-template" data-token="{exam_title}">{exam_title}</button>
-                                <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-file-template" data-token="{student_name}">{student_name}</button>
+                                <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-file-template" data-token="{student_firstname}">{student_firstname}</button>
+                                <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-file-template" data-token="{student_surname}">{student_surname}</button>
+                                <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-file-template" data-token="{student_firstname_initial}">{student_firstname_initial}</button>
+                                <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-file-template" data-token="{student_surname_initial}">{student_surname_initial}</button>
                                 <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-file-template" data-token="{candidate_number}">{candidate_number}</button>
                                 <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-file-template" data-token="{document_title}">{document_title}</button>
                                 <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-file-template" data-token="{original_name}">{original_name}</button>
@@ -221,11 +224,14 @@ $exams = $stmt->fetchAll();
 
                         <div class="mt-3">
                             <label class="form-label">Folder name template</label>
-                            <input class="form-control" type="text" name="folder_name_template" id="create-folder-template" placeholder="{candidate_number}_{student_name}">
+                            <input class="form-control" type="text" name="folder_name_template" id="create-folder-template" placeholder="{candidate_number}_{student_surname}">
                             <div class="form-text d-flex flex-wrap gap-2">
                                 <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{exam_id}">{exam_id}</button>
                                 <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{exam_title}">{exam_title}</button>
-                                <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{student_name}">{student_name}</button>
+                                <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{student_firstname}">{student_firstname}</button>
+                                <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{student_surname}">{student_surname}</button>
+                                <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{student_firstname_initial}">{student_firstname_initial}</button>
+                                <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{student_surname_initial}">{student_surname_initial}</button>
                                 <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{candidate_number}">{candidate_number}</button>
                                 <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{submission_id}">{submission_id}</button>
                             </div>

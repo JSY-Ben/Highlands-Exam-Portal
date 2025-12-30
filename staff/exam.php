@@ -137,7 +137,12 @@ foreach ($rows as $row) {
                     <div class="border rounded p-3 mb-3">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <div>
-                                <div class="fw-semibold"><?php echo e($submission['info']['student_name']); ?></div>
+                                <div class="fw-semibold">
+                                    <?php
+                                    $fullName = trim($submission['info']['student_first_name'] . ' ' . $submission['info']['student_last_name']);
+                                    echo e($fullName !== '' ? $fullName : $submission['info']['student_name']);
+                                    ?>
+                                </div>
                                 <small class="text-muted">Candidate: <?php echo e($submission['info']['candidate_number']); ?></small>
                             </div>
                             <small class="text-muted">Submitted: <?php echo e(format_datetime_display($submission['info']['submitted_at'])); ?></small>

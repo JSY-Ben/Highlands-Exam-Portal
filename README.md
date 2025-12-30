@@ -37,7 +37,15 @@ If you already created tables before adding the exam ID field, run:
 
 ```sql
 ALTER TABLE exams
-    ADD COLUMN exam_code VARCHAR(100) NULL;
+    ADD COLUMN exam_code VARCHAR(100) NOT NULL DEFAULT '';
+```
+
+If you already created tables before splitting student names, run:
+
+```sql
+ALTER TABLE submissions
+    ADD COLUMN student_first_name VARCHAR(100) NOT NULL DEFAULT '',
+    ADD COLUMN student_last_name VARCHAR(100) NOT NULL DEFAULT '';
 ```
 
 ## Notes

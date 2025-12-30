@@ -81,11 +81,15 @@ $documents = $stmt->fetchAll();
             <input type="hidden" name="exam_id" value="<?php echo (int) $exam['id']; ?>">
 
             <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">Student Name</label>
-                    <input class="form-control" type="text" name="student_name" required>
+                <div class="col-md-4">
+                    <label class="form-label">First Name</label>
+                    <input class="form-control" type="text" name="student_first_name" required>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <label class="form-label">Surname</label>
+                    <input class="form-control" type="text" name="student_last_name" required>
+                </div>
+                <div class="col-md-4">
                     <label class="form-label">Candidate Number</label>
                     <input class="form-control" type="text" name="candidate_number" required>
                 </div>

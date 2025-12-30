@@ -28,6 +28,8 @@ CREATE TABLE submissions (
     id INT AUTO_INCREMENT PRIMARY KEY,
     exam_id INT NOT NULL,
     student_name VARCHAR(255) NOT NULL,
+    student_first_name VARCHAR(100) NOT NULL,
+    student_last_name VARCHAR(100) NOT NULL,
     candidate_number VARCHAR(100) NOT NULL,
     submitted_at DATETIME NOT NULL,
     ip_address VARCHAR(45) NOT NULL,

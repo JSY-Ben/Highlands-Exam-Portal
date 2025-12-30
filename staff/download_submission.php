@@ -17,7 +17,7 @@ if ($submissionId <= 0) {
 }
 
 $stmt = db()->prepare(
-    'SELECT s.id AS submission_id, s.student_name, s.candidate_number, e.title AS exam_title,
+    'SELECT s.id AS submission_id, s.student_name, s.student_first_name, s.student_last_name, s.candidate_number, e.title AS exam_title,
             e.file_name_template, e.folder_name_template, e.exam_code, e.id AS exam_id, sf.original_name, sf.stored_path,
             ed.title AS document_title
      FROM submissions s
@@ -58,12 +58,17 @@ foreach ($files as $file) {
     }
 
     $examIdentifier = $file['exam_code'] ?? $file['exam_id'] ?? '';
+    $firstInitial = $file['student_first_name'] !== '' ? substr($file['student_first_name'], 0, 1) : '';
+    $lastInitial = $file['student_last_name'] !== '' ? substr($file['student_last_name'], 0, 1) : '';
     $fileName = apply_name_template(
         $file['file_name_template'] ?? '',
         [
             'exam_id' => $examIdentifier,
             'exam_title' => $file['exam_title'],
-            'student_name' => $file['student_name'],
+            'student_firstname' => $file['student_first_name'],
+            'student_surname' => $file['student_last_name'],
+            'student_firstname_initial' => $firstInitial,
+            'student_surname_initial' => $lastInitial,
             'candidate_number' => $file['candidate_number'],
             'document_title' => $file['document_title'],
             'original_name' => $file['original_name'],
@@ -81,16 +86,21 @@ $zip->close();
 
 $examIdentifier = $files[0]['exam_code'] ?? $files[0]['exam_id'] ?? '';
 $baseName = sanitize_name_component($files[0]['exam_title']);
+$fullName = trim($files[0]['student_first_name'] . ' ' . $files[0]['student_last_name']);
+$fallbackName = $fullName !== '' ? $fullName : $files[0]['student_name'];
 $folderName = apply_name_template(
     $files[0]['folder_name_template'] ?? '',
     [
         'exam_id' => $examIdentifier,
         'exam_title' => $files[0]['exam_title'],
-        'student_name' => $files[0]['student_name'],
+        'student_firstname' => $files[0]['student_first_name'],
+        'student_surname' => $files[0]['student_last_name'],
+        'student_firstname_initial' => $files[0]['student_first_name'] !== '' ? substr($files[0]['student_first_name'], 0, 1) : '',
+        'student_surname_initial' => $files[0]['student_last_name'] !== '' ? substr($files[0]['student_last_name'], 0, 1) : '',
         'candidate_number' => $files[0]['candidate_number'],
         'submission_id' => (string) $files[0]['submission_id'],
     ],
-    sprintf('%s_%s', $files[0]['candidate_number'], $files[0]['student_name'])
+    sprintf('%s_%s', $files[0]['candidate_number'], $fallbackName)
 );
 $folderName = sanitize_name_component($folderName);
 $downloadName = sprintf('%s_%s.zip', $baseName, $folderName);

@@ -9,15 +9,20 @@ $config = require __DIR__ . '/config.php';
 $uploadsDir = rtrim($config['uploads_dir'], '/');
 
 $examId = (int) ($_POST['exam_id'] ?? 0);
-$studentName = trim((string) ($_POST['student_name'] ?? ''));
+$studentFirstName = trim((string) ($_POST['student_first_name'] ?? ''));
+$studentLastName = trim((string) ($_POST['student_last_name'] ?? ''));
 $candidateNumber = trim((string) ($_POST['candidate_number'] ?? ''));
 $confirmed = isset($_POST['confirm_final']);
 
-if ($examId <= 0 || $studentName === '' || $candidateNumber === '' || !$confirmed) {
+if ($examId <= 0 || $studentFirstName === '' || $studentLastName === '' || $candidateNumber === '' || !$confirmed) {
     http_response_code(422);
     echo 'Missing required fields.';
     exit;
 }
+
+$studentName = trim($studentFirstName . ' ' . $studentLastName);
+$firstInitial = $studentFirstName !== '' ? substr($studentFirstName, 0, 1) : '';
+$lastInitial = $studentLastName !== '' ? substr($studentLastName, 0, 1) : '';
 
 $now = new DateTimeImmutable('now');
 
@@ -71,10 +76,12 @@ $pdo = db();
 $pdo->beginTransaction();
 
 try {
-    $stmt = $pdo->prepare('INSERT INTO submissions (exam_id, student_name, candidate_number, submitted_at, ip_address) VALUES (?, ?, ?, ?, ?)');
+    $stmt = $pdo->prepare('INSERT INTO submissions (exam_id, student_name, student_first_name, student_last_name, candidate_number, submitted_at, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?)');
     $stmt->execute([
         $examId,
         $studentName,
+        $studentFirstName,
+        $studentLastName,
         $candidateNumber,
         now_utc_string(),
         (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'),
@@ -106,7 +113,10 @@ try {
             [
                 'exam_id' => $examIdentifier,
                 'exam_title' => $exam['title'],
-                'student_name' => $studentName,
+                'student_firstname' => $studentFirstName,
+                'student_surname' => $studentLastName,
+                'student_firstname_initial' => $firstInitial,
+                'student_surname_initial' => $lastInitial,
                 'candidate_number' => $candidateNumber,
                 'document_title' => $doc['title'],
                 'original_name' => $originalName,

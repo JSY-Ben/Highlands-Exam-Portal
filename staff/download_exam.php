@@ -18,7 +18,7 @@ if ($examId <= 0) {
 
 $stmt = db()->prepare(
     'SELECT e.title AS exam_title, e.file_name_template, e.folder_name_template, e.exam_code, e.id AS exam_id,
-            s.id AS submission_id, s.student_name, s.candidate_number,
+            s.id AS submission_id, s.student_name, s.student_first_name, s.student_last_name, s.candidate_number,
             sf.original_name, sf.stored_path, ed.title AS document_title
      FROM exams e
      JOIN submissions s ON s.exam_id = e.id
@@ -58,16 +58,23 @@ foreach ($files as $file) {
     }
 
     $examIdentifier = $file['exam_code'] ?? $file['exam_id'] ?? '';
+    $firstInitial = $file['student_first_name'] !== '' ? substr($file['student_first_name'], 0, 1) : '';
+    $lastInitial = $file['student_last_name'] !== '' ? substr($file['student_last_name'], 0, 1) : '';
+    $fullName = trim($file['student_first_name'] . ' ' . $file['student_last_name']);
+    $fallbackName = $fullName !== '' ? $fullName : $file['student_name'];
     $folder = apply_name_template(
         $file['folder_name_template'] ?? '',
         [
             'exam_id' => $examIdentifier,
             'exam_title' => $file['exam_title'],
-            'student_name' => $file['student_name'],
+            'student_firstname' => $file['student_first_name'],
+            'student_surname' => $file['student_last_name'],
+            'student_firstname_initial' => $firstInitial,
+            'student_surname_initial' => $lastInitial,
             'candidate_number' => $file['candidate_number'],
             'submission_id' => (string) $file['submission_id'],
         ],
-        sprintf('%s_%s', $file['candidate_number'], $file['student_name'])
+        sprintf('%s_%s', $file['candidate_number'], $fallbackName)
     );
     $folder = sanitize_name_component($folder);
 
@@ -76,7 +83,10 @@ foreach ($files as $file) {
         [
             'exam_id' => $examIdentifier,
             'exam_title' => $file['exam_title'],
-            'student_name' => $file['student_name'],
+            'student_firstname' => $file['student_first_name'],
+            'student_surname' => $file['student_last_name'],
+            'student_firstname_initial' => $firstInitial,
+            'student_surname_initial' => $lastInitial,
             'candidate_number' => $file['candidate_number'],
             'document_title' => $file['document_title'],
             'original_name' => $file['original_name'],

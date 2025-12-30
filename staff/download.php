@@ -12,7 +12,8 @@ $fileId = (int) ($_GET['id'] ?? 0);
 
 $stmt = db()->prepare(
     'SELECT sf.original_name, sf.stored_path, ed.title AS document_title, e.title AS exam_title,
-            e.file_name_template, e.exam_code, e.id AS exam_id, s.student_name, s.candidate_number, s.id AS submission_id
+            e.file_name_template, e.exam_code, e.id AS exam_id, s.student_name, s.student_first_name, s.student_last_name,
+            s.candidate_number, s.id AS submission_id
      FROM submission_files sf
      JOIN submissions s ON s.id = sf.submission_id
      JOIN exams e ON e.id = s.exam_id
@@ -44,12 +45,17 @@ if (!is_file($realPath)) {
 }
 
 $examIdentifier = $file['exam_code'] ?? $file['exam_id'] ?? '';
+$firstInitial = $file['student_first_name'] !== '' ? substr($file['student_first_name'], 0, 1) : '';
+$lastInitial = $file['student_last_name'] !== '' ? substr($file['student_last_name'], 0, 1) : '';
 $filename = apply_name_template(
     $file['file_name_template'] ?? '',
     [
         'exam_id' => $examIdentifier,
         'exam_title' => $file['exam_title'],
-        'student_name' => $file['student_name'],
+        'student_firstname' => $file['student_first_name'],
+        'student_surname' => $file['student_last_name'],
+        'student_firstname_initial' => $firstInitial,
+        'student_surname_initial' => $lastInitial,
         'candidate_number' => $file['candidate_number'],
         'document_title' => $file['document_title'],
         'original_name' => $file['original_name'],
