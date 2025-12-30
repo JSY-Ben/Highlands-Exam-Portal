@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $pdo->commit();
-            header('Location: /staff/index.php');
+            header('Location: index.php');
             exit;
         } catch (Throwable $e) {
             $pdo->rollBack();
