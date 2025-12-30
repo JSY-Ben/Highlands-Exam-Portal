@@ -43,8 +43,8 @@ foreach ($stmt->fetchAll() as $exam) {
     <?php else: ?>
         <div class="row g-3">
             <?php foreach ($exams as $exam): ?>
-                <div class="col-md-6">
-                    <div class="card shadow-sm h-100">
+                <div class="col-12">
+                    <div class="card shadow-sm h-100 exam-card">
                         <div class="card-body">
                             <h2 class="h5 mb-2"><?php echo e($exam['title']); ?></h2>
                             <p class="text-muted mb-3">

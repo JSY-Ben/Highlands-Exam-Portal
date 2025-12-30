@@ -43,6 +43,16 @@ body {
     font-size: 1.02rem;
 }
 
+.exam-card {
+    border-left: 6px solid var(--portal-accent);
+    background: linear-gradient(90deg, #ffffff 0%, #f2fbff 100%);
+}
+
+.exam-card .btn-primary {
+    background-image: linear-gradient(90deg, #1f7a8c 0%, #2ca8a8 100%);
+    border: none;
+}
+
 .border.rounded.p-3 {
     background-color: var(--portal-panel);
     border-color: var(--portal-border) !important;
