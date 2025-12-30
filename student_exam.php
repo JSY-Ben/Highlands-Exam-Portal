@@ -113,9 +113,11 @@ require __DIR__ . '/header.php';
                 </div>
             </div>
 
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" name="confirm_final" value="1" required>
-                <label class="form-check-label">I confirm this is my final submission.</label>
+            <div class="alert alert-warning border d-flex align-items-start gap-2 mb-3">
+                <input class="form-check-input mt-1" type="checkbox" name="confirm_final" value="1" id="confirm-final" required>
+                <label class="form-check-label fw-semibold" for="confirm-final">
+                    I confirm this is my final submission.
+                </label>
             </div>
             <input type="hidden" name="missing_confirmed" id="missing-confirmed" value="0">
 
