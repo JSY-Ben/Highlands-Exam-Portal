@@ -10,6 +10,7 @@ CREATE TABLE exams (
     completed_at DATETIME NULL,
     file_name_template VARCHAR(255) NULL,
     folder_name_template VARCHAR(255) NULL,
+    access_password_hash VARCHAR(255) NULL,
     created_at DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

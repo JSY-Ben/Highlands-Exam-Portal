@@ -5,6 +5,10 @@ declare(strict_types=1);
 require __DIR__ . '/db.php';
 require __DIR__ . '/helpers.php';
 
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 $examId = (int) ($_GET['id'] ?? 0);
 $now = new DateTimeImmutable('now');
 
@@ -35,6 +39,58 @@ if (!$exam || !exam_is_active($exam, $now)) {
             <h1 class="h5 mb-2">Exam unavailable</h1>
             <p class="mb-3"><?php echo e($statusMessage); ?></p>
             <a class="btn btn-outline-secondary btn-sm" href="index.php">Back to active exams</a>
+        </div>
+    </main>
+    <?php
+    require __DIR__ . '/footer.php';
+    exit;
+}
+
+$requiresPassword = !empty($exam['access_password_hash'] ?? '');
+$accessKey = 'exam_access_' . $examId;
+$hasAccess = !$requiresPassword || !empty($_SESSION[$accessKey]);
+$accessError = '';
+
+if ($requiresPassword && !$hasAccess && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $password = trim((string) ($_POST['access_password'] ?? ''));
+    $storedHash = (string) ($exam['access_password_hash'] ?? '');
+    if ($password === '' || $storedHash === '' || !password_verify($password, $storedHash)) {
+        $accessError = 'Incorrect password. Please try again.';
+    } else {
+        $_SESSION[$accessKey] = true;
+        header('Location: student_exam.php?id=' . $examId);
+        exit;
+    }
+}
+
+if ($requiresPassword && !$hasAccess) {
+    $pageTitle = 'Enter Exam Password';
+    $brandHref = 'index.php';
+    $brandText = 'Exams Submission Portal';
+    $logoPath = 'logo.png';
+    $cssPath = 'style.css';
+    $navActions = '';
+    require __DIR__ . '/header.php';
+    ?>
+    <main class="container py-5">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h5 mb-3">Password required</h1>
+                <p class="text-muted">Enter the exam password to continue.</p>
+
+                <?php if ($accessError !== ''): ?>
+                    <div class="alert alert-danger"><?php echo e($accessError); ?></div>
+                <?php endif; ?>
+
+                <form method="post">
+                    <div class="mb-3">
+                        <label class="form-label">Exam password</label>
+                        <input class="form-control" type="password" name="access_password" autocomplete="current-password" required>
+                    </div>
+                    <button class="btn btn-primary" type="submit">Continue</button>
+                    <a class="btn btn-outline-secondary" href="index.php">Back</a>
+                </form>
+            </div>
         </div>
     </main>
     <?php

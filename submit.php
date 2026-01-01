@@ -5,6 +5,10 @@ declare(strict_types=1);
 require __DIR__ . '/db.php';
 require __DIR__ . '/helpers.php';
 
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 $config = require __DIR__ . '/config.php';
 $uploadsDir = rtrim($config['uploads_dir'], '/');
 
@@ -35,6 +39,16 @@ if (!$exam || !exam_is_active($exam, $now)) {
     http_response_code(403);
     echo 'Exam not accepting submissions.';
     exit;
+}
+
+$requiresPassword = !empty($exam['access_password_hash'] ?? '');
+if ($requiresPassword) {
+    $accessKey = 'exam_access_' . $examId;
+    if (empty($_SESSION[$accessKey])) {
+        http_response_code(403);
+        echo 'Exam password required.';
+        exit;
+    }
 }
 
 $stmt = db()->prepare('SELECT * FROM exam_documents WHERE exam_id = ? ORDER BY sort_order ASC, id ASC');

@@ -7,6 +7,10 @@ require __DIR__ . '/helpers.php';
 
 header('Content-Type: application/json');
 
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 $config = require __DIR__ . '/config.php';
 $uploadsDir = rtrim($config['uploads_dir'], '/');
 $tmpDir = $uploadsDir . '/tmp';
@@ -29,6 +33,16 @@ if (!$exam || !exam_is_active($exam, $now)) {
     http_response_code(403);
     echo json_encode(['error' => 'Exam not accepting submissions.']);
     exit;
+}
+
+$requiresPassword = !empty($exam['access_password_hash'] ?? '');
+if ($requiresPassword) {
+    $accessKey = 'exam_access_' . $examId;
+    if (empty($_SESSION[$accessKey])) {
+        http_response_code(403);
+        echo json_encode(['error' => 'Exam password required.']);
+        exit;
+    }
 }
 
 $stmt = db()->prepare('SELECT * FROM exam_documents WHERE id = ? AND exam_id = ?');

@@ -38,6 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $bufferPost = (int) ($_POST['buffer_post_minutes'] ?? 0);
     $fileNameTemplate = trim((string) ($_POST['file_name_template'] ?? ''));
     $folderNameTemplate = trim((string) ($_POST['folder_name_template'] ?? ''));
+    $newExamPassword = trim((string) ($_POST['exam_password'] ?? ''));
+    $clearExamPassword = isset($_POST['clear_exam_password']);
 
     $startDt = DateTimeImmutable::createFromFormat('Y-m-d\TH:i', $startTime);
     $endDt = DateTimeImmutable::createFromFormat('Y-m-d\TH:i', $endTime);
@@ -121,6 +123,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (count($errors) === 0) {
+        $passwordHash = $exam['access_password_hash'] ?? null;
+        if ($newExamPassword !== '') {
+            $passwordHash = password_hash($newExamPassword, PASSWORD_DEFAULT);
+        } elseif ($clearExamPassword) {
+            $passwordHash = null;
+        }
+
         $pdo = db();
         $pdo->beginTransaction();
 
@@ -128,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = $pdo->prepare(
                 'UPDATE exams
                  SET exam_code = ?, title = ?, start_time = ?, end_time = ?, buffer_pre_minutes = ?, buffer_post_minutes = ?,
-                     file_name_template = ?, folder_name_template = ?
+                     file_name_template = ?, folder_name_template = ?, access_password_hash = ?
                  WHERE id = ?'
             );
             $stmt->execute([
@@ -140,6 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $bufferPost,
                 $fileNameTemplate !== '' ? $fileNameTemplate : null,
                 $folderNameTemplate !== '' ? $folderNameTemplate : null,
+                $passwordHash,
                 $examId,
             ]);
 
@@ -382,6 +392,18 @@ require __DIR__ . '/../header.php';
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{student_surname_initial}">{student_surname_initial}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{candidate_number}">{candidate_number}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{submission_id}">{submission_id}</button>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <label class="form-label">Exam Access Password</label>
+                    <input class="form-control" type="password" name="exam_password" autocomplete="new-password" placeholder="Set a new password">
+                    <div class="form-text">
+                        <?php echo !empty($exam['access_password_hash']) ? 'A password is currently set for this exam.' : 'No password is currently set.'; ?>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" name="clear_exam_password" value="1" id="clear-exam-password">
+                        <label class="form-check-label" for="clear-exam-password">Clear existing password</label>
                     </div>
                 </div>
 

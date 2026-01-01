@@ -21,6 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $documentsTypes = $_POST['documents_types'] ?? [];
     $fileNameTemplate = trim((string) ($_POST['file_name_template'] ?? ''));
     $folderNameTemplate = trim((string) ($_POST['folder_name_template'] ?? ''));
+    $examPassword = trim((string) ($_POST['exam_password'] ?? ''));
+    $examPasswordHash = $examPassword !== '' ? password_hash($examPassword, PASSWORD_DEFAULT) : null;
 
     $documents = [];
     foreach ((array) $documentsTitle as $index => $titleValue) {
@@ -67,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
             $stmt = $pdo->prepare(
-                'INSERT INTO exams (exam_code, title, start_time, end_time, buffer_pre_minutes, buffer_post_minutes, file_name_template, folder_name_template, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                'INSERT INTO exams (exam_code, title, start_time, end_time, buffer_pre_minutes, buffer_post_minutes, file_name_template, folder_name_template, access_password_hash, created_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
             $stmt->execute([
                 $examCode,
@@ -79,6 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $bufferPost,
                 $fileNameTemplate !== '' ? $fileNameTemplate : null,
                 $folderNameTemplate !== '' ? $folderNameTemplate : null,
+                $examPasswordHash,
                 now_utc_string(),
             ]);
 
@@ -253,6 +256,12 @@ require __DIR__ . '/../header.php';
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{candidate_number}">{candidate_number}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="create-folder-template" data-token="{submission_id}">{submission_id}</button>
                     </div>
+                </div>
+
+                <div class="mt-3">
+                    <label class="form-label">Exam Access Password (optional)</label>
+                    <input class="form-control" type="password" name="exam_password" autocomplete="new-password">
+                    <div class="form-text">Leave blank to allow direct access without a password.</div>
                 </div>
 
                 <button class="btn btn-primary mt-3" type="submit">Create Exam</button>
