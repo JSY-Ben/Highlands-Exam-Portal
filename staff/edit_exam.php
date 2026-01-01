@@ -240,10 +240,10 @@ require __DIR__ . '/../header.php';
             <h1 class="h4 mb-3">Edit Exam</h1>
             <p class="text-muted">Update exam details, required documents, and naming templates.</p>
 
-            <div class="card border-0 bg-light-subtle mb-4">
+            <div class="card border border-primary-subtle shadow-sm bg-white mb-4">
                 <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
                     <div>
-                        <h2 class="h6 mb-1">Student roster</h2>
+                        <h2 class="h5 mb-1">Student roster</h2>
                         <p class="text-muted mb-0">Manage the optional student roster and access mode for this exam.</p>
                     </div>
                     <a class="btn btn-outline-primary btn-sm" href="exam_students.php?id=<?php echo (int) $exam['id']; ?>">Open student roster</a>
