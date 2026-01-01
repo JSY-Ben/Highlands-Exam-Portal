@@ -11,6 +11,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 $examId = (int) ($_GET['id'] ?? 0);
 $now = new DateTimeImmutable('now');
+$replaceRequested = ($_GET['replace'] ?? '') === '1';
 
 $stmt = db()->prepare('SELECT * FROM exams WHERE id = ?');
 $stmt->execute([$examId]);
@@ -218,6 +219,12 @@ require __DIR__ . '/header.php';
         <div class="card-body">
             <input type="hidden" name="exam_id" value="<?php echo (int) $exam['id']; ?>">
 
+            <?php if ($replaceRequested): ?>
+                <div class="alert alert-danger">
+                    A submission has already been received for this student. If you continue, your previous submission will be replaced.
+                </div>
+            <?php endif; ?>
+
             <?php if ($rosterEnabled): ?>
                 <?php if ($rosterMode === 'password'): ?>
                     <div class="alert alert-info">
@@ -316,6 +323,14 @@ require __DIR__ . '/header.php';
                     I confirm this is my final submission.
                 </label>
             </div>
+            <?php if ($replaceRequested): ?>
+                <div class="alert alert-danger border d-flex align-items-start gap-2 mb-3">
+                    <input class="form-check-input mt-1" type="checkbox" name="replace_confirmed" value="1" id="replace-confirmed" required>
+                    <label class="form-check-label fw-semibold" for="replace-confirmed">
+                        I understand my previous submission will be replaced.
+                    </label>
+                </div>
+            <?php endif; ?>
             <input type="hidden" name="missing_confirmed" id="missing-confirmed" value="0">
 
             <div class="d-flex flex-wrap gap-2">

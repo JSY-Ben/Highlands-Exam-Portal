@@ -18,6 +18,7 @@ $studentLastName = trim((string) ($_POST['student_last_name'] ?? ''));
 $candidateNumber = trim((string) ($_POST['candidate_number'] ?? ''));
 $examinerNote = trim((string) ($_POST['examiner_note'] ?? ''));
 $confirmed = isset($_POST['confirm_final']);
+$replaceConfirmed = isset($_POST['replace_confirmed']);
 
 if ($examId <= 0 || !$confirmed) {
     http_response_code(422);
@@ -94,20 +95,21 @@ if ($studentFirstName === '' || $studentLastName === '' || $candidateNumber === 
     exit;
 }
 
-if ($rosterEnabled) {
-    $stmt = db()->prepare(
-        'SELECT COUNT(*) FROM submissions
-         WHERE exam_id = ?
-           AND TRIM(candidate_number) = ?
-           AND TRIM(student_first_name) = ?
-           AND TRIM(student_last_name) = ?'
-    );
-    $stmt->execute([$examId, $candidateNumber, $studentFirstName, $studentLastName]);
-    if ((int) $stmt->fetchColumn() > 0) {
-        http_response_code(409);
-        echo 'Submission already received for this student.';
-        exit;
-    }
+$existingSubmissions = [];
+$stmt = db()->prepare(
+    'SELECT id FROM submissions
+     WHERE exam_id = ?
+       AND TRIM(candidate_number) = ?
+       AND TRIM(student_first_name) = ?
+       AND TRIM(student_last_name) = ?
+     ORDER BY submitted_at DESC'
+);
+$stmt->execute([$examId, $candidateNumber, $studentFirstName, $studentLastName]);
+$existingSubmissions = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+if (count($existingSubmissions) > 0 && !$replaceConfirmed) {
+    header('Location: student_exam.php?id=' . $examId . '&replace=1');
+    exit;
 }
 
 $requiresPassword = !empty($exam['access_password_hash'] ?? '');
@@ -201,6 +203,32 @@ $pdo = db();
 $pdo->beginTransaction();
 
 try {
+    if (count($existingSubmissions) > 0) {
+        $placeholders = implode(',', array_fill(0, count($existingSubmissions), '?'));
+        $stmt = $pdo->prepare("SELECT stored_path FROM submission_files WHERE submission_id IN ($placeholders)");
+        $stmt->execute($existingSubmissions);
+        $storedPaths = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        $deleteStmt = $pdo->prepare("DELETE FROM submissions WHERE id IN ($placeholders)");
+        $deleteStmt->execute($existingSubmissions);
+
+        $folders = [];
+        foreach ($storedPaths as $path) {
+            $fullPath = $uploadsDir . '/' . ltrim((string) $path, '/');
+            $realPath = realpath($fullPath);
+            if ($realPath && strpos($realPath, realpath($uploadsDir)) === 0 && is_file($realPath)) {
+                @unlink($realPath);
+                $folders[] = dirname($realPath);
+            }
+        }
+
+        foreach (array_unique($folders) as $folder) {
+            if (is_dir($folder)) {
+                @rmdir($folder);
+            }
+        }
+    }
+
     $stmt = $pdo->prepare('INSERT INTO submissions (exam_id, student_name, student_first_name, student_last_name, candidate_number, examiner_note, submitted_at, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
     $stmt->execute([
         $examId,
