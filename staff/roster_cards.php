@@ -69,6 +69,7 @@ $pageScripts = <<<HTML
         align-items: start;
         break-after: avoid-page;
         page-break-after: avoid;
+        padding-bottom: 0;
     }
     .row.row-cols-1.row-cols-md-2.row-cols-lg-3 > .col {
         padding: 0;
@@ -81,8 +82,15 @@ $pageScripts = <<<HTML
         break-inside: avoid;
         page-break-inside: avoid;
         min-height: 0;
-        height: calc((297mm - 28mm - 22mm) / 4);
+        height: 62mm;
         box-sizing: border-box;
+    }
+
+    .row.row-cols-1.row-cols-md-2.row-cols-lg-3 > .col:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        break-after: avoid-page;
+        page-break-after: avoid;
     }
 }
 .student-card .label {
