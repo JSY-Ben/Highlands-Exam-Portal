@@ -188,6 +188,11 @@ require __DIR__ . '/../header.php';
     <div class="card shadow-sm">
         <div class="card-body">
             <h1 class="h4">Create Exam</h1>
+            <div class="card border-0 bg-light-subtle mt-3 mb-4">
+                <div class="card-body py-3">
+                    <strong>Tip:</strong> You can add a student roster after creating the exam from the Edit Exam screen.
+                </div>
+            </div>
 
             <?php if (count($errors) > 0): ?>
                 <div class="alert alert-danger">
@@ -261,9 +266,6 @@ require __DIR__ . '/../header.php';
                             <input class="form-control" type="number" name="buffer_post_minutes" min="0" value="0">
                         </div>
                     </div>
-                    <p class="text-muted small mt-2 mb-0">
-                        You can add a student roster after creating the exam from the Edit Exam screen.
-                    </p>
                 </div>
 
                 <div class="mt-4 pb-4 border-bottom">
