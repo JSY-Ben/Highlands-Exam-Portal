@@ -111,6 +111,9 @@ $metadata = [
 
 file_put_contents($tmpMeta, json_encode($metadata, JSON_PRETTY_PRINT));
 
+$_SESSION['pending_upload_tokens_' . $examId][$docId] = $token;
+$_SESSION['pending_upload_names_' . $examId][$docId] = $originalName;
+
 echo json_encode([
     'token' => $token,
     'original_name' => $originalName,

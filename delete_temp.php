@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 require __DIR__ . '/helpers.php';
 
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
 header('Content-Type: application/json');
 
 $config = require __DIR__ . '/config.php';
@@ -25,6 +29,20 @@ if (is_file($tmpFile)) {
 }
 if (is_file($tmpMeta)) {
     @unlink($tmpMeta);
+}
+
+foreach (array_keys($_SESSION) as $key) {
+    if (strpos($key, 'pending_upload_tokens_') !== 0 && strpos($key, 'pending_upload_names_') !== 0) {
+        continue;
+    }
+    if (!is_array($_SESSION[$key])) {
+        continue;
+    }
+    foreach ($_SESSION[$key] as $docId => $value) {
+        if ((string) $value === $token) {
+            unset($_SESSION[$key][$docId]);
+        }
+    }
 }
 
 echo json_encode(['status' => 'ok']);

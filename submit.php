@@ -214,6 +214,13 @@ if (count($existingSubmissions) > 0 && !$replaceConfirmed) {
         ];
     }
     $tokenKey = 'pending_upload_tokens_' . $examId;
+    $sessionTokens = $_SESSION[$tokenKey] ?? [];
+    if (!is_array($sessionTokens)) {
+        $sessionTokens = [];
+    }
+    if (count($sessionTokens) > 0) {
+        $tokens = $tokens + $sessionTokens;
+    }
     $_SESSION[$tokenKey] = $tokens;
     if (count($tokens) > 0) {
         $nameKey = 'pending_upload_names_' . $examId;
