@@ -45,7 +45,7 @@ $pageScripts = <<<HTML
 <style>
 @page {
     size: A4;
-    margin: 12mm;
+    margin: 14mm 16mm;
 }
 @media print {
     .no-print,
@@ -64,7 +64,7 @@ $pageScripts = <<<HTML
     .row.row-cols-1.row-cols-md-2.row-cols-lg-3 {
         display: grid !important;
         grid-template-columns: 1fr;
-        gap: 8mm;
+        gap: 6mm;
         margin: 0;
         align-items: start;
     }
@@ -79,7 +79,8 @@ $pageScripts = <<<HTML
         break-inside: avoid;
         page-break-inside: avoid;
         min-height: 0;
-        height: calc((297mm - 24mm - 24mm) / 4);
+        height: calc((297mm - 28mm - 18mm) / 4);
+        box-sizing: border-box;
     }
 }
 .student-card .label {
