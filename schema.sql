@@ -11,6 +11,8 @@ CREATE TABLE exams (
     file_name_template VARCHAR(255) NULL,
     folder_name_template VARCHAR(255) NULL,
     access_password_hash VARCHAR(255) NULL,
+    student_roster_enabled TINYINT(1) NOT NULL DEFAULT 0,
+    student_roster_mode VARCHAR(20) NULL,
     created_at DATETIME NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -39,6 +41,20 @@ CREATE TABLE submissions (
     submitted_at DATETIME NOT NULL,
     ip_address VARCHAR(45) NOT NULL,
     CONSTRAINT fk_submissions_exam
+        FOREIGN KEY (exam_id)
+        REFERENCES exams (id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE exam_students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    exam_id INT NOT NULL,
+    student_first_name VARCHAR(100) NOT NULL,
+    student_last_name VARCHAR(100) NOT NULL,
+    candidate_number VARCHAR(100) NOT NULL,
+    access_password VARCHAR(64) NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    CONSTRAINT fk_exam_students_exam
         FOREIGN KEY (exam_id)
         REFERENCES exams (id)
         ON DELETE CASCADE

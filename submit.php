@@ -19,7 +19,7 @@ $candidateNumber = trim((string) ($_POST['candidate_number'] ?? ''));
 $examinerNote = trim((string) ($_POST['examiner_note'] ?? ''));
 $confirmed = isset($_POST['confirm_final']);
 
-if ($examId <= 0 || $studentFirstName === '' || $studentLastName === '' || $candidateNumber === '' || !$confirmed) {
+if ($examId <= 0 || !$confirmed) {
     http_response_code(422);
     echo 'Missing required fields.';
     exit;
@@ -38,6 +38,54 @@ $exam = $stmt->fetch();
 if (!$exam || !exam_is_active($exam, $now)) {
     http_response_code(403);
     echo 'Exam not accepting submissions.';
+    exit;
+}
+
+$rosterEnabled = !empty($exam['student_roster_enabled']);
+$rosterMode = ($exam['student_roster_mode'] ?? '') === 'password' ? 'password' : 'menu';
+if ($rosterEnabled) {
+    if ($rosterMode === 'password') {
+        $studentPassword = trim((string) ($_POST['student_password'] ?? ''));
+        if ($studentPassword === '') {
+            http_response_code(422);
+            echo 'Student password required.';
+            exit;
+        }
+        $stmt = db()->prepare('SELECT * FROM exam_students WHERE exam_id = ? AND access_password = ? LIMIT 1');
+        $stmt->execute([$examId, $studentPassword]);
+        $student = $stmt->fetch();
+        if (!$student) {
+            http_response_code(422);
+            echo 'Invalid student password.';
+            exit;
+        }
+        $studentFirstName = (string) $student['student_first_name'];
+        $studentLastName = (string) $student['student_last_name'];
+        $candidateNumber = (string) $student['candidate_number'];
+    } else {
+        $studentId = (int) ($_POST['student_id'] ?? 0);
+        if ($studentId <= 0) {
+            http_response_code(422);
+            echo 'Student selection required.';
+            exit;
+        }
+        $stmt = db()->prepare('SELECT * FROM exam_students WHERE id = ? AND exam_id = ?');
+        $stmt->execute([$studentId, $examId]);
+        $student = $stmt->fetch();
+        if (!$student) {
+            http_response_code(422);
+            echo 'Invalid student selection.';
+            exit;
+        }
+        $studentFirstName = (string) $student['student_first_name'];
+        $studentLastName = (string) $student['student_last_name'];
+        $candidateNumber = (string) $student['candidate_number'];
+    }
+}
+
+if ($studentFirstName === '' || $studentLastName === '' || $candidateNumber === '') {
+    http_response_code(422);
+    echo 'Missing required fields.';
     exit;
 }
 

@@ -239,6 +239,9 @@ require __DIR__ . '/../header.php';
         <div class="card-body">
             <h1 class="h4 mb-3">Edit Exam</h1>
             <p class="text-muted">Update exam details, required documents, and naming templates.</p>
+            <p class="text-muted mb-4">
+                Manage the optional student roster on the <a href="exam_students.php?id=<?php echo (int) $exam['id']; ?>">student roster page</a>.
+            </p>
 
             <?php if ($success): ?>
                 <div class="alert alert-success">Exam updated.</div>

@@ -98,6 +98,36 @@ if ($requiresPassword && !$hasAccess) {
     exit;
 }
 
+$rosterEnabled = !empty($exam['student_roster_enabled']);
+$rosterMode = ($exam['student_roster_mode'] ?? '') === 'password' ? 'password' : 'menu';
+$students = [];
+if ($rosterEnabled) {
+    $stmt = db()->prepare('SELECT * FROM exam_students WHERE exam_id = ? ORDER BY sort_order ASC, id ASC');
+    $stmt->execute([$examId]);
+    $students = $stmt->fetchAll();
+}
+
+if ($rosterEnabled && count($students) === 0) {
+    $pageTitle = 'Exam Roster Missing';
+    $brandHref = 'index.php';
+    $brandText = 'Exams Submission Portal';
+    $logoPath = 'logo.png';
+    $cssPath = 'style.css';
+    $navActions = '';
+    require __DIR__ . '/header.php';
+    ?>
+    <main class="container py-5">
+        <div class="alert alert-warning shadow-sm">
+            <h1 class="h5 mb-2">No student list configured</h1>
+            <p class="mb-3">This exam requires a student roster, but no students have been added yet.</p>
+            <a class="btn btn-outline-secondary btn-sm" href="index.php">Back to active exams</a>
+        </div>
+    </main>
+    <?php
+    require __DIR__ . '/footer.php';
+    exit;
+}
+
 $stmt = db()->prepare('SELECT * FROM exam_documents WHERE exam_id = ? ORDER BY sort_order ASC, id ASC');
 $stmt->execute([$examId]);
 $documents = $stmt->fetchAll();
@@ -119,20 +149,46 @@ require __DIR__ . '/header.php';
         <div class="card-body">
             <input type="hidden" name="exam_id" value="<?php echo (int) $exam['id']; ?>">
 
-            <div class="row g-3 mb-3">
-                <div class="col-md-4">
-                    <label class="form-label">First Name</label>
-                    <input class="form-control" type="text" name="student_first_name" required>
+            <?php if ($rosterEnabled): ?>
+                <?php if ($rosterMode === 'password'): ?>
+                    <div class="mb-3">
+                        <label class="form-label">Student Password</label>
+                        <input class="form-control" type="password" name="student_password" autocomplete="current-password" required>
+                        <div class="form-text">Enter the password provided for your submission.</div>
+                    </div>
+                <?php else: ?>
+                    <div class="mb-3">
+                        <label class="form-label">Select Your Name</label>
+                        <select class="form-select" name="student_id" required>
+                            <option value="">Choose your name</option>
+                            <?php foreach ($students as $student): ?>
+                                <option value="<?php echo (int) $student['id']; ?>">
+                                    <?php
+                                    $label = trim($student['student_last_name'] . ', ' . $student['student_first_name']);
+                                    $label .= $student['candidate_number'] !== '' ? ' (' . $student['candidate_number'] . ')' : '';
+                                    echo e($label);
+                                    ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php endif; ?>
+            <?php else: ?>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">First Name</label>
+                        <input class="form-control" type="text" name="student_first_name" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Surname</label>
+                        <input class="form-control" type="text" name="student_last_name" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Candidate Number</label>
+                        <input class="form-control" type="text" name="candidate_number" required>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label">Surname</label>
-                    <input class="form-control" type="text" name="student_last_name" required>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Candidate Number</label>
-                    <input class="form-control" type="text" name="candidate_number" required>
-                </div>
-            </div>
+            <?php endif; ?>
             <div class="mb-3">
                 <label class="form-label">Note to Examiner</label>
                 <textarea class="form-control" name="examiner_note" rows="3" placeholder="Please put anything you wish the examiner to know about this submission here"></textarea>
