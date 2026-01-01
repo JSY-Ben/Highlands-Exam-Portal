@@ -67,6 +67,8 @@ $pageScripts = <<<HTML
         gap: 6mm;
         margin: 0;
         align-items: start;
+        break-after: avoid-page;
+        page-break-after: avoid;
     }
     .row.row-cols-1.row-cols-md-2.row-cols-lg-3 > .col {
         padding: 0;
@@ -79,7 +81,7 @@ $pageScripts = <<<HTML
         break-inside: avoid;
         page-break-inside: avoid;
         min-height: 0;
-        height: calc((297mm - 28mm - 18mm) / 4);
+        height: calc((297mm - 28mm - 22mm) / 4);
         box-sizing: border-box;
     }
 }
