@@ -129,6 +129,7 @@ $pageScripts = <<<HTML
         padding-bottom: 0;
         break-after: avoid-page;
         page-break-after: avoid;
+        margin-bottom: 0 !important;
     }
 }
 .student-card .label {
