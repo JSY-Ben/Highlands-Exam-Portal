@@ -95,6 +95,36 @@ if ($studentFirstName === '' || $studentLastName === '' || $candidateNumber === 
     exit;
 }
 
+$requiresPassword = !empty($exam['access_password_hash'] ?? '');
+if ($requiresPassword) {
+    $accessKey = 'exam_access_' . $examId;
+    if (empty($_SESSION[$accessKey])) {
+        http_response_code(403);
+        echo 'Exam password required.';
+        exit;
+    }
+}
+
+$stmt = db()->prepare('SELECT * FROM exam_documents WHERE exam_id = ? ORDER BY sort_order ASC, id ASC');
+$stmt->execute([$examId]);
+$documents = $stmt->fetchAll();
+
+if (count($documents) === 0) {
+    http_response_code(400);
+    echo 'No documents configured for this exam.';
+    exit;
+}
+
+$tmpDir = $uploadsDir . '/tmp';
+$tokens = [];
+foreach ($documents as $doc) {
+    $tokenKey = 'uploaded_token_' . $doc['id'];
+    $tokenValue = trim((string) ($_POST[$tokenKey] ?? ''));
+    if ($tokenValue !== '' && preg_match('/^[a-f0-9]{32}$/', $tokenValue)) {
+        $tokens[$doc['id']] = $tokenValue;
+    }
+}
+
 $existingSubmissions = [];
 $stmt = db()->prepare(
     'SELECT id FROM submissions
@@ -144,36 +174,6 @@ if (count($existingSubmissions) > 0 && !$replaceConfirmed) {
     }
     header('Location: student_exam.php?id=' . $examId . '&replace=1');
     exit;
-}
-
-$requiresPassword = !empty($exam['access_password_hash'] ?? '');
-if ($requiresPassword) {
-    $accessKey = 'exam_access_' . $examId;
-    if (empty($_SESSION[$accessKey])) {
-        http_response_code(403);
-        echo 'Exam password required.';
-        exit;
-    }
-}
-
-$stmt = db()->prepare('SELECT * FROM exam_documents WHERE exam_id = ? ORDER BY sort_order ASC, id ASC');
-$stmt->execute([$examId]);
-$documents = $stmt->fetchAll();
-
-if (count($documents) === 0) {
-    http_response_code(400);
-    echo 'No documents configured for this exam.';
-    exit;
-}
-
-$tmpDir = $uploadsDir . '/tmp';
-$tokens = [];
-foreach ($documents as $doc) {
-    $tokenKey = 'uploaded_token_' . $doc['id'];
-    $tokenValue = trim((string) ($_POST[$tokenKey] ?? ''));
-    if ($tokenValue !== '' && preg_match('/^[a-f0-9]{32}$/', $tokenValue)) {
-        $tokens[$doc['id']] = $tokenValue;
-    }
 }
 
 $fileTypeErrors = [];
