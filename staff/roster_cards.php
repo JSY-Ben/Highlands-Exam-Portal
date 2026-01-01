@@ -85,6 +85,7 @@ $pageScripts = <<<HTML
     .row.row-cols-1.row-cols-md-2.row-cols-lg-3 > .col:nth-child(3n) {
         break-after: page;
         page-break-after: always;
+        margin-bottom: 6mm !important;
     }
     .student-card {
         break-inside: avoid;
