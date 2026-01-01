@@ -78,7 +78,7 @@ require __DIR__ . '/header.php';
                                 <?php if (count($examFiles) > 0): ?>
                                     <div class="dropdown">
                                         <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Download Exam Files
+                                            Download Exam Materials
                                         </button>
                                         <ul class="dropdown-menu">
                                             <li>

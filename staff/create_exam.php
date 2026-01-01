@@ -328,22 +328,22 @@ require __DIR__ . '/../header.php';
                 </div>
 
                 <div class="mt-3">
-                    <h2 class="h6 text-uppercase fw-bold mb-2">Exam Files (optional)</h2>
+                    <h2 class="h6 text-uppercase fw-bold mb-2">Exam Materials (optional)</h2>
                     <div id="exam-files-list" class="d-grid gap-2">
                         <div class="border rounded p-3">
                             <div class="row g-2">
                                 <div class="col-md-6">
-                                    <label class="form-label">File title</label>
+                                    <label class="form-label">Material title</label>
                                     <input class="form-control" type="text" name="exam_files_title[]" placeholder="Exam Paper 1">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">File</label>
+                                    <label class="form-label">Material file</label>
                                     <input class="form-control" type="file" name="exam_files_file[]">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <button class="btn btn-outline-secondary btn-sm mt-2" type="button" id="add-exam-file">Add another file</button>
+                    <button class="btn btn-outline-secondary btn-sm mt-2" type="button" id="add-exam-file">Add another material</button>
                     <div class="form-text">Students will see the title instead of the filename.</div>
                 </div>
 
@@ -407,11 +407,11 @@ require __DIR__ . '/../header.php';
             wrapper.innerHTML = `
                 <div class="row g-2">
                     <div class="col-md-6">
-                        <label class="form-label">File title</label>
+                        <label class="form-label">Material title</label>
                         <input class="form-control" type="text" name="exam_files_title[]" placeholder="Exam Paper 1">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">File</label>
+                        <label class="form-label">Material file</label>
                         <input class="form-control" type="file" name="exam_files_file[]">
                     </div>
                 </div>
