@@ -146,6 +146,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $order++;
             }
 
+            if (count($keptIds) > 0) {
+                $placeholders = implode(',', array_fill(0, count($keptIds), '?'));
+                $deleteStmt = $pdo->prepare("DELETE FROM exam_students WHERE exam_id = ? AND id NOT IN ($placeholders)");
+                $deleteStmt->execute(array_merge([$examId], $keptIds));
+            } else {
+                $deleteStmt = $pdo->prepare('DELETE FROM exam_students WHERE exam_id = ?');
+                $deleteStmt->execute([$examId]);
+            }
+
             if (count($newRows) > 0) {
                 $insertStudent = $pdo->prepare(
                     'INSERT INTO exam_students (exam_id, student_first_name, student_last_name, candidate_number, access_password, sort_order)
@@ -162,15 +171,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     ]);
                     $order++;
                 }
-            }
-
-            if (count($keptIds) > 0) {
-                $placeholders = implode(',', array_fill(0, count($keptIds), '?'));
-                $deleteStmt = $pdo->prepare("DELETE FROM exam_students WHERE exam_id = ? AND id NOT IN ($placeholders)");
-                $deleteStmt->execute(array_merge([$examId], $keptIds));
-            } else {
-                $deleteStmt = $pdo->prepare('DELETE FROM exam_students WHERE exam_id = ?');
-                $deleteStmt->execute([$examId]);
             }
 
             $pdo->commit();
