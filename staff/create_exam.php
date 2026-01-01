@@ -198,66 +198,75 @@ require __DIR__ . '/../header.php';
             <?php endif; ?>
 
             <form method="post" enctype="multipart/form-data">
-                <div class="mb-3">
-                    <label class="form-label">Exam ID</label>
-                    <input class="form-control" type="text" name="exam_code" placeholder="EXAM-2024-01" required>
-                    <div class="form-text">Example: EXAM-2024-01</div>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Exam Title</label>
-                    <input class="form-control" type="text" name="title" placeholder="Biology Paper 1" required>
-                    <div class="form-text">Example: Biology Paper 1</div>
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Start Date</label>
-                        <input class="form-control" type="date" id="start-date" required>
+                <div class="mt-2">
+                    <h2 class="h6 text-uppercase fw-bold mb-2">Exam Details</h2>
+                    <div class="mb-3">
+                        <label class="form-label">Exam ID</label>
+                        <input class="form-control" type="text" name="exam_code" placeholder="EXAM-2024-01" required>
+                        <div class="form-text">Example: EXAM-2024-01</div>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Start Time</label>
-                        <div class="input-group">
-                            <input class="form-control" type="text" id="start-time" placeholder="hh:mm" required>
-                            <select class="form-select" id="start-ampm">
-                                <option value="AM">AM</option>
-                                <option value="PM">PM</option>
-                            </select>
+
+                    <div class="mb-3">
+                        <label class="form-label">Exam Title</label>
+                        <input class="form-control" type="text" name="title" placeholder="Biology Paper 1" required>
+                        <div class="form-text">Example: Biology Paper 1</div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h2 class="h6 text-uppercase fw-bold mb-2">Schedule & Buffers</h2>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Start Date</label>
+                            <input class="form-control" type="date" id="start-date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Start Time</label>
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="start-time" placeholder="hh:mm" required>
+                                <select class="form-select" id="start-ampm">
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="row g-3 mt-1">
-                    <div class="col-md-6">
-                        <label class="form-label">End Date</label>
-                        <input class="form-control" type="date" id="end-date" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">End Time</label>
-                        <div class="input-group">
-                            <input class="form-control" type="text" id="end-time" placeholder="hh:mm" required>
-                            <select class="form-select" id="end-ampm">
-                                <option value="AM">AM</option>
-                                <option value="PM">PM</option>
-                            </select>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <label class="form-label">End Date</label>
+                            <input class="form-control" type="date" id="end-date" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Time</label>
+                            <div class="input-group">
+                                <input class="form-control" type="text" id="end-time" placeholder="hh:mm" required>
+                                <select class="form-select" id="end-ampm">
+                                    <option value="AM">AM</option>
+                                    <option value="PM">PM</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <input type="hidden" name="start_time" id="start-time-hidden" required>
-                <input type="hidden" name="end_time" id="end-time-hidden" required>
+                    <input type="hidden" name="start_time" id="start-time-hidden" required>
+                    <input type="hidden" name="end_time" id="end-time-hidden" required>
 
-                <div class="row g-3 mt-1">
-                    <div class="col-md-6">
-                        <label class="form-label">Pre-Buffer (minutes)</label>
-                        <input class="form-control" type="number" name="buffer_pre_minutes" min="0" value="0">
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <label class="form-label">Pre-Buffer (minutes)</label>
+                            <input class="form-control" type="number" name="buffer_pre_minutes" min="0" value="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Post-Buffer (minutes)</label>
+                            <input class="form-control" type="number" name="buffer_post_minutes" min="0" value="0">
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Post-Buffer (minutes)</label>
-                        <input class="form-control" type="number" name="buffer_post_minutes" min="0" value="0">
-                    </div>
+                    <p class="text-muted small mt-2 mb-0">
+                        You can add a student roster after creating the exam from the Edit Exam screen.
+                    </p>
                 </div>
 
-                <div class="mt-3">
+                <div class="mt-4">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Required Documents</h2>
                     <div id="document-list" class="d-grid gap-2">
                         <div class="border rounded p-3">
@@ -287,7 +296,8 @@ require __DIR__ . '/../header.php';
                     <button class="btn btn-outline-secondary btn-sm mt-2" type="button" id="add-document">Add another document</button>
                 </div>
 
-                <div class="mt-3">
+                <div class="mt-4">
+                    <h2 class="h6 text-uppercase fw-bold mb-2">Submission Naming</h2>
                     <label class="form-label">Submitted Document Naming Convention</label>
                     <input class="form-control" type="text" name="file_name_template" id="create-file-template" placeholder="{candidate_number}_{document_title}_{original_name}">
                     <div class="form-text">Example: {candidate_number}_{document_title}_{original_name}</div>
@@ -321,13 +331,7 @@ require __DIR__ . '/../header.php';
                     </div>
                 </div>
 
-                <div class="mt-3">
-                    <label class="form-label">Exam Access Password (optional)</label>
-                    <input class="form-control" type="password" name="exam_password" autocomplete="new-password">
-                    <div class="form-text">Leave blank to allow direct access without a password.</div>
-                </div>
-
-                <div class="mt-3">
+                <div class="mt-4">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Exam Materials (optional)</h2>
                     <div id="exam-files-list" class="d-grid gap-2">
                         <div class="border rounded p-3">
@@ -345,6 +349,13 @@ require __DIR__ . '/../header.php';
                     </div>
                     <button class="btn btn-outline-secondary btn-sm mt-2" type="button" id="add-exam-file">Add another material</button>
                     <div class="form-text">Students will see the title instead of the filename.</div>
+                </div>
+
+                <div class="mt-4">
+                    <h2 class="h6 text-uppercase fw-bold mb-2">Access Settings</h2>
+                    <label class="form-label">Exam Access Password (optional)</label>
+                    <input class="form-control" type="password" name="exam_password" autocomplete="new-password">
+                    <div class="form-text">Leave blank to allow direct access without a password.</div>
                 </div>
 
                 <button class="btn btn-primary mt-3" type="submit">Create Exam</button>

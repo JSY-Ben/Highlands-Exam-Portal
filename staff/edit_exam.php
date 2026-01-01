@@ -360,16 +360,6 @@ require __DIR__ . '/../header.php';
             <h1 class="h4 mb-3">Edit Exam</h1>
             <p class="text-muted">Update exam details, required documents, and naming templates.</p>
 
-            <div class="card border border-primary-subtle shadow-sm bg-primary-subtle mb-4">
-                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
-                    <div>
-                        <h2 class="h5 mb-1">Student roster</h2>
-                        <p class="text-muted mb-0">Manage the optional student roster and access mode for this exam.</p>
-                    </div>
-                    <a class="btn btn-outline-primary btn-sm" href="exam_students.php?id=<?php echo (int) $exam['id']; ?>">Open student roster</a>
-                </div>
-            </div>
-
             <?php if ($success): ?>
                 <div class="alert alert-success">Exam updated.</div>
             <?php endif; ?>
@@ -385,35 +375,51 @@ require __DIR__ . '/../header.php';
             <form method="post" enctype="multipart/form-data">
                 <input type="hidden" name="delete_confirmed" id="delete-confirmed" value="0">
                 <input type="hidden" name="delete_documents" id="delete-documents" value="">
-                <div class="mb-3">
-                    <label class="form-label">Exam ID</label>
-                    <input class="form-control" type="text" name="exam_code" value="<?php echo e((string) $exam['exam_code']); ?>" required>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Exam Title</label>
-                    <input class="form-control" type="text" name="title" value="<?php echo e((string) $exam['title']); ?>" required>
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Start Time</label>
-                        <input class="form-control" type="datetime-local" name="start_time" value="<?php echo e($startValue); ?>" required>
+                <div class="mt-2">
+                    <h2 class="h6 text-uppercase fw-bold mb-2">Exam Details</h2>
+                    <div class="mb-3">
+                        <label class="form-label">Exam ID</label>
+                        <input class="form-control" type="text" name="exam_code" value="<?php echo e((string) $exam['exam_code']); ?>" required>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">End Time</label>
-                        <input class="form-control" type="datetime-local" name="end_time" value="<?php echo e($endValue); ?>" required>
+
+                    <div class="mb-3">
+                        <label class="form-label">Exam Title</label>
+                        <input class="form-control" type="text" name="title" value="<?php echo e((string) $exam['title']); ?>" required>
                     </div>
                 </div>
 
-                <div class="row g-3 mt-1">
-                    <div class="col-md-6">
-                        <label class="form-label">Pre-Buffer (minutes)</label>
-                        <input class="form-control" type="number" name="buffer_pre_minutes" min="0" value="<?php echo (int) $exam['buffer_pre_minutes']; ?>">
+                <div class="mt-4">
+                    <h2 class="h6 text-uppercase fw-bold mb-2">Schedule & Buffers</h2>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Start Time</label>
+                            <input class="form-control" type="datetime-local" name="start_time" value="<?php echo e($startValue); ?>" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">End Time</label>
+                            <input class="form-control" type="datetime-local" name="end_time" value="<?php echo e($endValue); ?>" required>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Post-Buffer (minutes)</label>
-                        <input class="form-control" type="number" name="buffer_post_minutes" min="0" value="<?php echo (int) $exam['buffer_post_minutes']; ?>">
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <label class="form-label">Pre-Buffer (minutes)</label>
+                            <input class="form-control" type="number" name="buffer_pre_minutes" min="0" value="<?php echo (int) $exam['buffer_pre_minutes']; ?>">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Post-Buffer (minutes)</label>
+                            <input class="form-control" type="number" name="buffer_post_minutes" min="0" value="<?php echo (int) $exam['buffer_post_minutes']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border border-primary-subtle shadow-sm bg-primary-subtle mt-4">
+                    <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+                        <div>
+                            <h2 class="h5 mb-1">Student roster</h2>
+                            <p class="text-muted mb-0">Manage the optional student roster and access mode for this exam.</p>
+                        </div>
+                        <a class="btn btn-outline-primary btn-sm" href="exam_students.php?id=<?php echo (int) $exam['id']; ?>">Open student roster</a>
                     </div>
                 </div>
 
@@ -492,6 +498,7 @@ require __DIR__ . '/../header.php';
                 </div>
 
                 <div class="mt-4">
+                    <h2 class="h6 text-uppercase fw-bold mb-2">Submission Naming</h2>
                     <label class="form-label">Submitted Document Naming Convention</label>
                     <input class="form-control" type="text" name="file_name_template" id="edit-file-template" value="<?php echo e((string) ($exam['file_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{document_title}_{original_name}">
                     <div class="form-text">Example: {candidate_number}_{document_title}_{original_name}</div>
@@ -522,18 +529,6 @@ require __DIR__ . '/../header.php';
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{student_surname_initial}">{student_surname_initial}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{candidate_number}">{candidate_number}</button>
                         <button class="btn btn-outline-secondary btn-sm token-btn" type="button" data-target="edit-folder-template" data-token="{submission_id}">{submission_id}</button>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <label class="form-label">Exam Access Password</label>
-                    <input class="form-control" type="password" name="exam_password" autocomplete="new-password" placeholder="Set a new password">
-                    <div class="form-text">
-                        <?php echo !empty($exam['access_password_hash']) ? 'A password is currently set for this exam.' : 'No password is currently set.'; ?>
-                    </div>
-                    <div class="form-check mt-2">
-                        <input class="form-check-input" type="checkbox" name="clear_exam_password" value="1" id="clear-exam-password">
-                        <label class="form-check-label" for="clear-exam-password">Clear existing password</label>
                     </div>
                 </div>
 
@@ -591,6 +586,18 @@ require __DIR__ . '/../header.php';
                     </div>
                 </div>
 
+                <div class="mt-4">
+                    <h2 class="h6 text-uppercase fw-bold mb-2">Access Settings</h2>
+                    <label class="form-label">Exam Access Password</label>
+                    <input class="form-control" type="password" name="exam_password" autocomplete="new-password" placeholder="Set a new password">
+                    <div class="form-text">
+                        <?php echo !empty($exam['access_password_hash']) ? 'A password is currently set for this exam.' : 'No password is currently set.'; ?>
+                    </div>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" name="clear_exam_password" value="1" id="clear-exam-password">
+                        <label class="form-check-label" for="clear-exam-password">Clear existing password</label>
+                    </div>
+                </div>
                 <div class="d-flex gap-2 mt-4">
                     <button class="btn btn-primary" type="submit">Save changes</button>
                     <a class="btn btn-outline-secondary" href="exam.php?id=<?php echo (int) $exam['id']; ?>">Cancel</a>
