@@ -239,9 +239,16 @@ require __DIR__ . '/../header.php';
         <div class="card-body">
             <h1 class="h4 mb-3">Edit Exam</h1>
             <p class="text-muted">Update exam details, required documents, and naming templates.</p>
-            <p class="text-muted mb-4">
-                Manage the optional student roster on the <a href="exam_students.php?id=<?php echo (int) $exam['id']; ?>">student roster page</a>.
-            </p>
+
+            <div class="card border-0 bg-light-subtle mb-4">
+                <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+                    <div>
+                        <h2 class="h6 mb-1">Student roster</h2>
+                        <p class="text-muted mb-0">Manage the optional student roster and access mode for this exam.</p>
+                    </div>
+                    <a class="btn btn-outline-primary btn-sm" href="exam_students.php?id=<?php echo (int) $exam['id']; ?>">Open student roster</a>
+                </div>
+            </div>
 
             <?php if ($success): ?>
                 <div class="alert alert-success">Exam updated.</div>
