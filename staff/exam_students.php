@@ -42,6 +42,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newFirstNames = (array) ($_POST['new_students_first_name'] ?? []);
     $newLastNames = (array) ($_POST['new_students_last_name'] ?? []);
     $newCandidateNumbers = (array) ($_POST['new_students_candidate_number'] ?? []);
+    $csvRows = [];
+    $csvFile = $_FILES['student_csv'] ?? null;
+
+    if ($csvFile && ($csvFile['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE) {
+        if (($csvFile['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK) {
+            $errors[] = 'Failed to upload CSV file.';
+        } else {
+            $handle = fopen($csvFile['tmp_name'], 'r');
+            if ($handle === false) {
+                $errors[] = 'Unable to read the CSV file.';
+            } else {
+                $header = fgetcsv($handle);
+                if (!is_array($header)) {
+                    $errors[] = 'CSV file is missing a header row.';
+                } else {
+                    $normalized = [];
+                    foreach ($header as $index => $name) {
+                        $key = strtolower(trim((string) $name));
+                        $key = preg_replace('/\\s+/', '_', $key);
+                        $key = preg_replace('/_+/', '_', $key);
+                        $normalized[$key] = $index;
+                    }
+
+                    $expected = [
+                        'first_name' => null,
+                        'last_name' => null,
+                        'candidate_number' => null,
+                    ];
+                    $aliases = [
+                        'first_name' => ['first_name', 'firstname', 'first'],
+                        'last_name' => ['last_name', 'lastname', 'surname', 'last'],
+                        'candidate_number' => ['candidate_number', 'candidate_no', 'candidate', 'candidatenumber'],
+                    ];
+
+                    foreach ($aliases as $field => $keys) {
+                        foreach ($keys as $key) {
+                            if (array_key_exists($key, $normalized)) {
+                                $expected[$field] = $normalized[$key];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (in_array(null, $expected, true)) {
+                        $errors[] = 'CSV headers must include first_name, last_name, and candidate_number.';
+                    } else {
+                        while (($row = fgetcsv($handle)) !== false) {
+                            if (!is_array($row)) {
+                                continue;
+                            }
+                            $firstName = trim((string) ($row[$expected['first_name']] ?? ''));
+                            $lastName = trim((string) ($row[$expected['last_name']] ?? ''));
+                            $candidate = trim((string) ($row[$expected['candidate_number']] ?? ''));
+
+                            if ($firstName === '' && $lastName === '' && $candidate === '') {
+                                continue;
+                            }
+
+                            if ($firstName === '' || $lastName === '' || $candidate === '') {
+                                $errors[] = 'Each CSV row must include first name, last name, and candidate number.';
+                                break;
+                            }
+
+                            $csvRows[] = [
+                                'first_name' => $firstName,
+                                'last_name' => $lastName,
+                                'candidate_number' => $candidate,
+                            ];
+                        }
+                    }
+                }
+                fclose($handle);
+            }
+        }
+    }
 
     $existingRows = [];
     foreach ($existing as $studentId => $studentData) {
@@ -105,6 +180,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'first_name' => $firstName,
             'last_name' => $lastName,
             'candidate_number' => $candidate,
+            'password' => $password,
+        ];
+    }
+
+    foreach ($csvRows as $row) {
+        $password = null;
+        if ($rosterMode === 'password') {
+            $password = generate_student_password();
+        }
+        $newRows[] = [
+            'first_name' => $row['first_name'],
+            'last_name' => $row['last_name'],
+            'candidate_number' => $row['candidate_number'],
             'password' => $password,
         ];
     }
@@ -220,7 +308,7 @@ require __DIR__ . '/../header.php';
                 </div>
             <?php endif; ?>
 
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" name="roster_enabled" id="roster-enabled" value="1" <?php echo $rosterEnabled ? 'checked' : ''; ?>>
                     <label class="form-check-label" for="roster-enabled">Enable roster for this exam</label>
@@ -279,6 +367,12 @@ require __DIR__ . '/../header.php';
                         </table>
                     </div>
                     <button class="btn btn-outline-secondary btn-sm" type="button" id="add-student">Add student</button>
+                </div>
+
+                <div class="mt-4">
+                    <label class="form-label">Import from CSV</label>
+                    <input class="form-control" type="file" name="student_csv" accept=".csv">
+                    <div class="form-text">Required headers: <code>first_name</code>, <code>last_name</code>, <code>candidate_number</code>.</div>
                 </div>
 
                 <div class="mt-4 d-flex gap-2">
