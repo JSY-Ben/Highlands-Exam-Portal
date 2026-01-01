@@ -154,6 +154,53 @@ foreach ($rows as $row) {
         $hasFiles = true;
     }
 }
+
+$rosterEnabled = !empty($exam['student_roster_enabled']);
+if ($rosterEnabled) {
+    $stmt = db()->prepare('SELECT * FROM exam_students WHERE exam_id = ? ORDER BY sort_order ASC, id ASC');
+    $stmt->execute([$examId]);
+    $rosterStudents = $stmt->fetchAll();
+
+    $submissionByCandidate = [];
+    foreach ($submissions as $submissionId => $submission) {
+        $candidate = trim((string) ($submission['info']['candidate_number'] ?? ''));
+        if ($candidate !== '' && !isset($submissionByCandidate[$candidate])) {
+            $submissionByCandidate[$candidate] = $submissionId;
+        }
+    }
+
+    $orderedSubmissions = [];
+    $matchedSubmissionIds = [];
+    foreach ($rosterStudents as $student) {
+        $candidate = trim((string) ($student['candidate_number'] ?? ''));
+        if ($candidate !== '' && isset($submissionByCandidate[$candidate])) {
+            $submissionId = $submissionByCandidate[$candidate];
+            $orderedSubmissions[] = $submissions[$submissionId];
+            $matchedSubmissionIds[$submissionId] = true;
+        } else {
+            $orderedSubmissions[] = [
+                'info' => [
+                    'id' => 0,
+                    'student_first_name' => (string) $student['student_first_name'],
+                    'student_last_name' => (string) $student['student_last_name'],
+                    'student_name' => '',
+                    'candidate_number' => (string) $student['candidate_number'],
+                    'examiner_note' => null,
+                    'submitted_at' => '',
+                ],
+                'files' => [],
+            ];
+        }
+    }
+
+    foreach ($submissions as $submissionId => $submission) {
+        if (!isset($matchedSubmissionIds[$submissionId])) {
+            $orderedSubmissions[] = $submission;
+        }
+    }
+
+    $submissions = $orderedSubmissions;
+}
 ?>
 <main class="container py-4">
     <div class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-start gap-2">
@@ -230,16 +277,20 @@ foreach ($rows as $row) {
                                 <?php endif; ?>
                             </div>
                             <div class="d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center submission-actions">
-                                <small class="text-muted">Submitted: <?php echo e(format_datetime_display($submission['info']['submitted_at'])); ?></small>
-                                <form method="post" onsubmit="return confirm('Reset this submission so the student can submit again? Existing files will be archived.');">
-                                    <input type="hidden" name="action" value="reset_submission">
-                                    <input type="hidden" name="submission_id" value="<?php echo (int) $submission['info']['id']; ?>">
-                                    <button class="btn btn-outline-warning btn-sm" type="submit">Reset submission</button>
-                                </form>
+                                <?php if (!empty($submission['info']['submitted_at'])): ?>
+                                    <small class="text-muted">Submitted: <?php echo e(format_datetime_display($submission['info']['submitted_at'])); ?></small>
+                                    <form method="post" onsubmit="return confirm('Reset this submission so the student can submit again? Existing files will be archived.');">
+                                        <input type="hidden" name="action" value="reset_submission">
+                                        <input type="hidden" name="submission_id" value="<?php echo (int) $submission['info']['id']; ?>">
+                                        <button class="btn btn-outline-warning btn-sm" type="submit">Reset submission</button>
+                                    </form>
+                                <?php else: ?>
+                                    <small class="text-muted">Not submitted yet.</small>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <?php if (count($submission['files']) === 0): ?>
-                            <p class="text-muted mb-0">No files uploaded.</p>
+                            <p class="text-muted mb-0"><?php echo !empty($submission['info']['submitted_at']) ? 'No files uploaded.' : 'No submission yet.'; ?></p>
                         <?php else: ?>
                             <div class="d-flex flex-wrap gap-2">
                                 <div class="dropdown">
