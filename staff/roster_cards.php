@@ -77,11 +77,10 @@ HTML;
 require __DIR__ . '/../header.php';
 ?>
 <main class="container py-4">
-    <div class="d-flex justify-content-between align-items-start gap-3 no-print">
-        <div>
-            <h1 class="h4 mb-1"><?php echo e($exam['title']); ?> - Student Cards</h1>
-            <p class="text-muted mb-0">Print or save as PDF to distribute individual student access cards.</p>
-        </div>
+    <div class="no-print">
+        <h1 class="h4 mb-1"><?php echo e($exam['title']); ?> - Student Cards</h1>
+        <button class="btn btn-primary btn-sm mt-2" type="button" onclick="window.print()">Print / Save as PDF</button>
+        <p class="text-muted mt-2 mb-0">Print or save as PDF to distribute individual student access cards.</p>
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3 mt-2">
