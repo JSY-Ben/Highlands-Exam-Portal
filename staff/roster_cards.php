@@ -43,6 +43,10 @@ $navActions = '<button class="btn btn-outline-primary btn-sm no-print" type="but
     . '<a class="btn btn-outline-secondary btn-sm no-print" href="exam_students.php?id=' . (int) $exam['id'] . '">Back to roster</a>';
 $pageScripts = <<<HTML
 <style>
+@page {
+    size: A4;
+    margin: 12mm;
+}
 @media print {
     .no-print,
     nav,
@@ -52,9 +56,26 @@ $pageScripts = <<<HTML
     body {
         background: #fff;
     }
+    main.container {
+        max-width: none;
+        width: 100%;
+        padding: 0;
+    }
+    .row.row-cols-1.row-cols-md-2.row-cols-lg-3 {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10mm;
+        margin: 0;
+    }
+    .row.row-cols-1.row-cols-md-2.row-cols-lg-3 > .col {
+        padding: 0;
+        margin: 0;
+        width: auto;
+    }
     .student-card {
         break-inside: avoid;
         page-break-inside: avoid;
+        min-height: 60mm;
     }
 }
 .student-card .label {
