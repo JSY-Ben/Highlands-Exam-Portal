@@ -279,6 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $stmt = db()->prepare('SELECT * FROM exam_students WHERE exam_id = ? ORDER BY sort_order ASC, id ASC');
 $stmt->execute([$examId]);
 $students = $stmt->fetchAll();
+$hasPasswords = $rosterEnabled && $rosterMode === 'password' && count($students) > 0;
 
 $pageTitle = 'Student Roster - ' . $exam['title'];
 $brandHref = 'index.php';
@@ -295,6 +296,9 @@ require __DIR__ . '/../header.php';
         <div class="card-body">
             <h1 class="h4 mb-2">Student Roster</h1>
             <p class="text-muted mb-3">Configure the student list and how students identify themselves on the submission page.</p>
+            <?php if ($hasPasswords): ?>
+                <a class="btn btn-outline-primary btn-sm mb-3" href="roster_cards.php?id=<?php echo (int) $exam['id']; ?>">Printable student cards (PDF)</a>
+            <?php endif; ?>
 
             <?php if ($success): ?>
                 <div class="alert alert-success">Student roster updated.</div>
