@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/db.php';
 require __DIR__ . '/helpers.php';
+require __DIR__ . '/config.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
@@ -241,10 +242,38 @@ $stmt = db()->prepare('SELECT * FROM exam_documents WHERE exam_id = ? ORDER BY s
 $stmt->execute([$examId]);
 $documents = $stmt->fetchAll();
 $prefillTokens = [];
+$prefillMeta = [];
 if ($replaceRequested) {
     $tokenKey = 'pending_upload_tokens_' . $examId;
     if (isset($_SESSION[$tokenKey]) && is_array($_SESSION[$tokenKey])) {
         $prefillTokens = $_SESSION[$tokenKey];
+    }
+}
+if ($replaceRequested && count($prefillTokens) > 0) {
+    $config = require __DIR__ . '/config.php';
+    $uploadsDir = rtrim($config['uploads_dir'], '/');
+    $tmpDir = $uploadsDir . '/tmp';
+    foreach ($prefillTokens as $docId => $token) {
+        $token = (string) $token;
+        if ($token === '' || !preg_match('/^[a-f0-9]{32}$/', $token)) {
+            continue;
+        }
+        $metaPath = $tmpDir . '/' . $token . '.json';
+        if (!is_file($metaPath)) {
+            continue;
+        }
+        $metaRaw = file_get_contents($metaPath);
+        $meta = $metaRaw !== false ? json_decode($metaRaw, true) : null;
+        if (!is_array($meta)) {
+            continue;
+        }
+        if ((int) ($meta['exam_id'] ?? 0) !== $examId || (int) ($meta['doc_id'] ?? 0) !== (int) $docId) {
+            continue;
+        }
+        $prefillMeta[(int) $docId] = [
+            'original_name' => (string) ($meta['original_name'] ?? ''),
+            'file_size' => (int) ($meta['file_size'] ?? 0),
+        ];
     }
 }
 $pageTitle = 'Submit Files - ' . $exam['title'];
@@ -330,13 +359,19 @@ require __DIR__ . '/header.php';
                                 $accept = build_accept_attribute($doc['allowed_file_types'] ?? '');
                             }
                             ?>
-                            <?php $prefillToken = (string) ($prefillTokens[$doc['id']] ?? ''); ?>
+                            <?php
+                            $prefillToken = (string) ($prefillTokens[$doc['id']] ?? '');
+                            $prefillInfo = $prefillMeta[(int) $doc['id']] ?? null;
+                            ?>
                             <input class="form-control file-input" type="file" data-doc-id="<?php echo (int) $doc['id']; ?>" name="file_<?php echo (int) $doc['id']; ?>" <?php echo $accept !== '' ? 'accept="' . e($accept) . '"' : ''; ?>>
                             <input type="hidden" name="uploaded_token_<?php echo (int) $doc['id']; ?>" id="uploaded-token-<?php echo (int) $doc['id']; ?>" value="<?php echo e($prefillToken); ?>">
-                            <div class="progress mt-2 d-none" id="progress-<?php echo (int) $doc['id']; ?>">
-                                <div class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+                            <div class="progress mt-2<?php echo $prefillToken !== '' ? '' : ' d-none'; ?>" id="progress-<?php echo (int) $doc['id']; ?>">
+                                <div class="progress-bar" role="progressbar" style="width: <?php echo $prefillToken !== '' ? '100%' : '0%'; ?>"><?php echo $prefillToken !== '' ? '100%' : '0%'; ?></div>
                             </div>
                             <div class="form-text text-success<?php echo $prefillToken !== '' ? '' : ' d-none'; ?>" id="status-<?php echo (int) $doc['id']; ?>">Upload complete.</div>
+                            <?php if ($prefillToken !== '' && is_array($prefillInfo) && $prefillInfo['original_name'] !== ''): ?>
+                                <div class="form-text text-muted">Cached file: <?php echo e($prefillInfo['original_name']); ?></div>
+                            <?php endif; ?>
                             <div class="form-text text-danger d-none" id="error-<?php echo (int) $doc['id']; ?>"></div>
                             <button class="btn btn-outline-danger btn-sm mt-2<?php echo $prefillToken !== '' ? '' : ' d-none'; ?> remove-upload" type="button" data-doc-id="<?php echo (int) $doc['id']; ?>">Remove uploaded file</button>
                             <?php
