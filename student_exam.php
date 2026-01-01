@@ -320,12 +320,12 @@ require __DIR__ . '/header.php';
 
             <div class="d-flex flex-wrap gap-2">
                 <button class="btn btn-primary" type="submit">Submit Files</button>
-                <form action="cancel_submission.php" method="post">
-                    <input type="hidden" name="exam_id" value="<?php echo (int) $exam['id']; ?>">
-                    <button class="btn btn-outline-secondary" type="submit">Cancel submission</button>
-                </form>
             </div>
         </div>
+    </form>
+    <form class="mt-3" action="cancel_submission.php" method="post">
+        <input type="hidden" name="exam_id" value="<?php echo (int) $exam['id']; ?>">
+        <button class="btn btn-outline-secondary" type="submit">Cancel submission</button>
     </form>
     <?php $maxUpload = upload_max_file_size(); ?>
     <p class="text-muted small mt-4 mb-0">
