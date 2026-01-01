@@ -375,7 +375,7 @@ require __DIR__ . '/../header.php';
             <form method="post" enctype="multipart/form-data">
                 <input type="hidden" name="delete_confirmed" id="delete-confirmed" value="0">
                 <input type="hidden" name="delete_documents" id="delete-documents" value="">
-                <div class="mt-2">
+                <div class="mt-2 pb-4 border-bottom">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Exam Details</h2>
                     <div class="mb-3">
                         <label class="form-label">Exam ID</label>
@@ -388,7 +388,7 @@ require __DIR__ . '/../header.php';
                     </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 pb-4 border-bottom">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Schedule & Buffers</h2>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -413,7 +413,7 @@ require __DIR__ . '/../header.php';
                     </div>
                 </div>
 
-                <div class="card border border-primary-subtle shadow-sm bg-primary-subtle mt-4">
+                <div class="card border border-primary-subtle shadow-sm bg-primary-subtle mt-4 mb-4">
                     <div class="card-body d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
                         <div>
                             <h2 class="h5 mb-1">Student roster</h2>
@@ -423,7 +423,7 @@ require __DIR__ . '/../header.php';
                     </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 pb-4 border-bottom">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Required Documents</h2>
                     <div id="document-list" class="d-grid gap-2">
                         <?php foreach ($documents as $doc): ?>
@@ -497,7 +497,7 @@ require __DIR__ . '/../header.php';
                     <button class="btn btn-outline-secondary btn-sm mt-2" type="button" id="add-document">Add another document</button>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 pb-4 border-bottom">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Submission Naming</h2>
                     <label class="form-label">Submitted Document Naming Convention</label>
                     <input class="form-control" type="text" name="file_name_template" id="edit-file-template" value="<?php echo e((string) ($exam['file_name_template'] ?? '')); ?>" placeholder="{candidate_number}_{document_title}_{original_name}">
@@ -532,7 +532,7 @@ require __DIR__ . '/../header.php';
                     </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 pb-4 border-bottom">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Exam Materials</h2>
                     <?php if (count($examFiles) === 0): ?>
                         <p class="text-muted mb-2">No exam materials uploaded.</p>

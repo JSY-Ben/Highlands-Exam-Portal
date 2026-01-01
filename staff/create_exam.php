@@ -198,7 +198,7 @@ require __DIR__ . '/../header.php';
             <?php endif; ?>
 
             <form method="post" enctype="multipart/form-data">
-                <div class="mt-2">
+                <div class="mt-2 pb-4 border-bottom">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Exam Details</h2>
                     <div class="mb-3">
                         <label class="form-label">Exam ID</label>
@@ -213,7 +213,7 @@ require __DIR__ . '/../header.php';
                     </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 pb-4 border-bottom">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Schedule & Buffers</h2>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -266,7 +266,7 @@ require __DIR__ . '/../header.php';
                     </p>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 pb-4 border-bottom">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Required Documents</h2>
                     <div id="document-list" class="d-grid gap-2">
                         <div class="border rounded p-3">
@@ -296,7 +296,7 @@ require __DIR__ . '/../header.php';
                     <button class="btn btn-outline-secondary btn-sm mt-2" type="button" id="add-document">Add another document</button>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 pb-4 border-bottom">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Submission Naming</h2>
                     <label class="form-label">Submitted Document Naming Convention</label>
                     <input class="form-control" type="text" name="file_name_template" id="create-file-template" placeholder="{candidate_number}_{document_title}_{original_name}">
@@ -331,7 +331,7 @@ require __DIR__ . '/../header.php';
                     </div>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-4 pb-4 border-bottom">
                     <h2 class="h6 text-uppercase fw-bold mb-2">Exam Materials (optional)</h2>
                     <div id="exam-files-list" class="d-grid gap-2">
                         <div class="border rounded p-3">
