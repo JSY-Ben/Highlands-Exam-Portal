@@ -383,9 +383,9 @@ require __DIR__ . '/header.php';
                             <div class="form-text text-success<?php echo $prefillToken !== '' ? '' : ' d-none'; ?>" id="status-<?php echo (int) $doc['id']; ?>">Upload complete.</div>
                             <?php if ($prefillToken !== ''): ?>
                                 <?php if (is_array($prefillInfo) && $prefillInfo['original_name'] !== ''): ?>
-                                    <div class="form-text text-muted">Cached file: <?php echo e($prefillInfo['original_name']); ?></div>
+                                    <div class="form-text text-muted">File already uploaded: <?php echo e($prefillInfo['original_name']); ?></div>
                                 <?php else: ?>
-                                    <div class="form-text text-muted">Cached file ready for resubmission.</div>
+                                    <div class="form-text text-muted">File already uploaded and ready for resubmission.</div>
                                 <?php endif; ?>
                             <?php endif; ?>
                             <div class="form-text text-danger d-none" id="error-<?php echo (int) $doc['id']; ?>"></div>
