@@ -136,6 +136,9 @@ if ($rosterEnabled && count($students) === 0) {
 }
 
 $rosterStudent = null;
+if (!$rosterEnabled) {
+    $rosterMode = '';
+}
 if ($rosterEnabled && $rosterMode === 'password') {
     $rosterSessionKey = 'exam_roster_student_' . $examId;
     $studentId = (int) ($_SESSION[$rosterSessionKey] ?? 0);
@@ -198,6 +201,26 @@ if ($rosterEnabled && $rosterMode === 'password') {
     }
 }
 
+$replaceRequired = $replaceRequested;
+if ($rosterEnabled && $rosterMode === 'password' && $rosterStudent) {
+    $stmt = db()->prepare(
+        'SELECT COUNT(*) FROM submissions
+         WHERE exam_id = ?
+           AND TRIM(candidate_number) = ?
+           AND TRIM(student_first_name) = ?
+           AND TRIM(student_last_name) = ?'
+    );
+    $stmt->execute([
+        $examId,
+        trim((string) $rosterStudent['candidate_number']),
+        trim((string) $rosterStudent['student_first_name']),
+        trim((string) $rosterStudent['student_last_name']),
+    ]);
+    if ((int) $stmt->fetchColumn() > 0) {
+        $replaceRequired = true;
+    }
+}
+
 $stmt = db()->prepare('SELECT * FROM exam_documents WHERE exam_id = ? ORDER BY sort_order ASC, id ASC');
 $stmt->execute([$examId]);
 $documents = $stmt->fetchAll();
@@ -219,11 +242,9 @@ require __DIR__ . '/header.php';
         <div class="card-body">
             <input type="hidden" name="exam_id" value="<?php echo (int) $exam['id']; ?>">
 
-            <?php if ($replaceRequested): ?>
-                <div class="alert alert-danger">
-                    A submission has already been received for this student. If you continue, your previous submission will be replaced.
-                </div>
-            <?php endif; ?>
+            <div class="alert alert-danger<?php echo $replaceRequired ? '' : ' d-none'; ?>" id="replace-warning">
+                A submission has already been received for this student. If you continue, your previous submission will be replaced.
+            </div>
 
             <?php if ($rosterEnabled): ?>
                 <?php if ($rosterMode === 'password'): ?>
@@ -323,14 +344,12 @@ require __DIR__ . '/header.php';
                     I confirm this is my final submission.
                 </label>
             </div>
-            <?php if ($replaceRequested): ?>
-                <div class="alert alert-danger border d-flex align-items-start gap-2 mb-3">
-                    <input class="form-check-input mt-1" type="checkbox" name="replace_confirmed" value="1" id="replace-confirmed" required>
-                    <label class="form-check-label fw-semibold" for="replace-confirmed">
-                        I understand my previous submission will be replaced.
-                    </label>
-                </div>
-            <?php endif; ?>
+            <div class="alert alert-danger border d-flex align-items-start gap-2 mb-3<?php echo $replaceRequired ? '' : ' d-none'; ?>" id="replace-confirm-wrapper">
+                <input class="form-check-input mt-1" type="checkbox" name="replace_confirmed" value="1" id="replace-confirmed" <?php echo $replaceRequired ? 'required' : ''; ?>>
+                <label class="form-check-label fw-semibold" for="replace-confirmed">
+                    I understand my previous submission will be replaced.
+                </label>
+            </div>
             <input type="hidden" name="missing_confirmed" id="missing-confirmed" value="0">
 
             <div class="d-flex flex-wrap gap-2">
@@ -393,6 +412,10 @@ require __DIR__ . '/header.php';
     const noFilesModal = new bootstrap.Modal(document.getElementById('noFilesModal'));
     const missingFilesList = document.getElementById('missingFilesList');
     const confirmMissingFiles = document.getElementById('confirmMissingFiles');
+    const replaceWarning = document.getElementById('replace-warning');
+    const replaceConfirmWrapper = document.getElementById('replace-confirm-wrapper');
+    const replaceConfirm = document.getElementById('replace-confirmed');
+    const studentSelect = document.querySelector('select[name="student_id"]');
     let pendingSubmit = false;
 
     form.addEventListener('submit', (event) => {
@@ -434,6 +457,43 @@ require __DIR__ . '/header.php';
         missingFilesModal.hide();
         form.submit();
     });
+
+    const toggleReplaceWarning = (show) => {
+        if (!replaceWarning || !replaceConfirmWrapper || !replaceConfirm) {
+            return;
+        }
+        replaceWarning.classList.toggle('d-none', !show);
+        replaceConfirmWrapper.classList.toggle('d-none', !show);
+        replaceConfirm.required = show;
+        if (!show) {
+            replaceConfirm.checked = false;
+        }
+    };
+
+    const checkExistingSubmission = async (studentId) => {
+        if (!studentId) {
+            toggleReplaceWarning(false);
+            return;
+        }
+        try {
+            const response = await fetch(`check_submission.php?exam_id=${encodeURIComponent(examId)}&student_id=${encodeURIComponent(studentId)}`);
+            if (!response.ok) {
+                toggleReplaceWarning(false);
+                return;
+            }
+            const data = await response.json();
+            toggleReplaceWarning(Boolean(data?.has_submission));
+        } catch (e) {
+            toggleReplaceWarning(false);
+        }
+    };
+
+    if (studentSelect) {
+        studentSelect.addEventListener('change', (event) => {
+            const value = event.target.value;
+            checkExistingSubmission(value);
+        });
+    }
 
     const examId = <?php echo (int) $exam['id']; ?>;
     const uploadInputs = document.querySelectorAll('.file-input');
