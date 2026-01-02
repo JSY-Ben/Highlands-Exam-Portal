@@ -72,7 +72,6 @@ CREATE TABLE submissions (
     submitted_at DATETIME NOT NULL,
     ip_address VARCHAR(45) NOT NULL,
     host_name VARCHAR(255) NULL,
-    device_name VARCHAR(255) NULL,
     CONSTRAINT fk_submissions_exam
         FOREIGN KEY (exam_id)
         REFERENCES exams (id)

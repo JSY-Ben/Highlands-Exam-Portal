@@ -17,7 +17,6 @@ $studentFirstName = trim((string) ($_POST['student_first_name'] ?? ''));
 $studentLastName = trim((string) ($_POST['student_last_name'] ?? ''));
 $candidateNumber = trim((string) ($_POST['candidate_number'] ?? ''));
 $examinerNote = trim((string) ($_POST['examiner_note'] ?? ''));
-$deviceName = trim((string) ($_POST['device_name'] ?? ''));
 $confirmed = isset($_POST['confirm_final']);
 $replaceConfirmed = isset($_POST['replace_confirmed']);
 
@@ -361,7 +360,7 @@ try {
         }
     }
 
-$stmt = $pdo->prepare('INSERT INTO submissions (exam_id, student_name, student_first_name, student_last_name, candidate_number, examiner_note, submitted_at, ip_address, host_name, device_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+$stmt = $pdo->prepare('INSERT INTO submissions (exam_id, student_name, student_first_name, student_last_name, candidate_number, examiner_note, submitted_at, ip_address, host_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
     $ipAddress = (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown');
     $hostName = trim((string) ($_SERVER['REMOTE_HOST'] ?? ''));
     if ($hostName === '' && $ipAddress !== '' && $ipAddress !== 'unknown') {
@@ -380,7 +379,6 @@ $stmt = $pdo->prepare('INSERT INTO submissions (exam_id, student_name, student_f
         now_utc_string(),
         $ipAddress,
         $hostName !== '' ? $hostName : null,
-        $deviceName !== '' ? $deviceName : null,
     ]);
 
     $pendingKey = 'pending_submission_' . $examId;

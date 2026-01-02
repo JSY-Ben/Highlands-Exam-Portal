@@ -316,9 +316,6 @@ if ($rosterEnabled) {
                                             (<?php echo e($submission['info']['host_name']); ?>)
                                         <?php endif; ?>
                                     </div>
-                                    <?php if (!empty($submission['info']['device_name'])): ?>
-                                        <div class="text-muted small">Device: <?php echo e($submission['info']['device_name']); ?></div>
-                                    <?php endif; ?>
                                     <form method="post" onsubmit="return confirm('Reset this submission so the student can submit again? Existing files will be archived.');">
                                         <input type="hidden" name="action" value="reset_submission">
                                         <input type="hidden" name="submission_id" value="<?php echo (int) $submission['info']['id']; ?>">

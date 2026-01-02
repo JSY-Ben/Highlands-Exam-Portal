@@ -341,10 +341,6 @@ require __DIR__ . '/header.php';
                 </div>
             <?php endif; ?>
             <div class="mb-3">
-                <label class="form-label">Device Name (optional)</label>
-                <input class="form-control" type="text" name="device_name" placeholder="Library-PC-12">
-            </div>
-            <div class="mb-3">
                 <label class="form-label">Note to Examiner</label>
                 <textarea class="form-control" name="examiner_note" rows="3" placeholder="Please put anything you wish the examiner to know about this submission here"><?php echo e((string) ($prefill['examiner_note'] ?? '')); ?></textarea>
             </div>
