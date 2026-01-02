@@ -186,7 +186,7 @@ require __DIR__ . '/header.php';
         const errorMessage = button.dataset.errorMessage || '';
 
         modalTitle.textContent = 'Enter access details';
-        modalSubtitle.textContent = `Submit files for ${examTitle}`;
+        modalSubtitle.textContent = 'Please enter the password supplied to you for this exam:';
         modalExamId.value = examId || '';
         modalReturnTo.value = returnTo || '';
         examField.classList.toggle('d-none', !needsExamPassword);
