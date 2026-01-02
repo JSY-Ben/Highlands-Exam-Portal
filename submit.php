@@ -360,7 +360,7 @@ try {
         }
     }
 
-    $stmt = $pdo->prepare('INSERT INTO submissions (exam_id, student_name, student_first_name, student_last_name, candidate_number, examiner_note, submitted_at, ip_address) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+$stmt = $pdo->prepare('INSERT INTO submissions (exam_id, student_name, student_first_name, student_last_name, candidate_number, examiner_note, submitted_at, ip_address, host_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
     $stmt->execute([
         $examId,
         $studentName,
@@ -370,6 +370,7 @@ try {
         $examinerNote !== '' ? $examinerNote : null,
         now_utc_string(),
         (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'),
+        trim((string) ($_SERVER['REMOTE_HOST'] ?? '')) !== '' ? (string) $_SERVER['REMOTE_HOST'] : null,
     ]);
 
     $pendingKey = 'pending_submission_' . $examId;

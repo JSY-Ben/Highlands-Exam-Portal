@@ -307,7 +307,15 @@ if ($rosterEnabled) {
                             </div>
                             <div class="d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center submission-actions">
                                 <?php if (!empty($submission['info']['submitted_at'])): ?>
-                                    <small class="text-muted">Submitted: <?php echo e(format_datetime_display($submission['info']['submitted_at'])); ?></small>
+                                    <div class="text-muted small">
+                                        Submitted: <?php echo e(format_datetime_display($submission['info']['submitted_at'])); ?>
+                                    </div>
+                                    <div class="text-muted small">
+                                        Submitted from: <?php echo e($submission['info']['ip_address']); ?>
+                                        <?php if (!empty($submission['info']['host_name'])): ?>
+                                            (<?php echo e($submission['info']['host_name']); ?>)
+                                        <?php endif; ?>
+                                    </div>
                                     <form method="post" onsubmit="return confirm('Reset this submission so the student can submit again? Existing files will be archived.');">
                                         <input type="hidden" name="action" value="reset_submission">
                                         <input type="hidden" name="submission_id" value="<?php echo (int) $submission['info']['id']; ?>">
