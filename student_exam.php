@@ -615,6 +615,7 @@ require __DIR__ . '/header.php';
                 modified.classList.remove('text-warning');
                 modified.classList.add('text-muted');
                 modified.textContent = '';
+                modified.innerHTML = '';
             }
             if (error) {
                 error.classList.add('d-none');
@@ -750,6 +751,7 @@ require __DIR__ . '/header.php';
                 modified.classList.remove('text-warning');
                 modified.classList.add('text-muted');
                 modified.textContent = '';
+                modified.innerHTML = '';
             }
             if (error) {
                 error.classList.add('d-none');
