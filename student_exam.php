@@ -392,7 +392,7 @@ require __DIR__ . '/header.php';
                                 <?php endif; ?>
                                 <?php if (is_array($prefillInfo) && !empty($prefillInfo['last_modified_display'])): ?>
                                     <div class="form-text <?php echo !empty($prefillInfo['last_modified_warning']) ? 'text-warning' : 'text-muted'; ?>">
-                                        This file was last updated at: <?php echo e($prefillInfo['last_modified_display']); ?>. Please make sure the date/time displayed here is the time you last worked on this file. If it is not, make sure you have saved it and upload again.
+                                        This file was last updated at: <strong><?php echo e($prefillInfo['last_modified_display']); ?></strong>. Please make sure the date/time displayed here is the time you last worked on this file. If it is not, make sure you have saved it and upload again.
                                     </div>
                                 <?php endif; ?>
                             <?php endif; ?>
@@ -660,7 +660,14 @@ require __DIR__ . '/header.php';
                                 status.classList.remove('d-none');
                             }
                             if (modified && response.last_modified_display) {
-                                modified.textContent = `This file was last updated at: ${response.last_modified_display}. Please make sure the date/time displayed here is the time you last worked on this file. If it is not, make sure you have saved it and upload again.`;
+                                modified.textContent = '';
+                                const prefix = document.createTextNode('This file was last updated at: ');
+                                const suffix = document.createTextNode('. Please make sure the date/time displayed here is the time you last worked on this file. If it is not, make sure you have saved it and upload again.');
+                                const strong = document.createElement('strong');
+                                strong.textContent = response.last_modified_display;
+                                modified.appendChild(prefix);
+                                modified.appendChild(strong);
+                                modified.appendChild(suffix);
                                 modified.classList.remove('d-none');
                                 if (response.last_modified_warning) {
                                     modified.classList.add('text-warning');
