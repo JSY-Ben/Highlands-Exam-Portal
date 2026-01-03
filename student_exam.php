@@ -237,9 +237,21 @@ $prefillMeta = [];
 if ($replaceRequested) {
     $nameKey = 'pending_upload_names_' . $examId;
     if (isset($_SESSION[$nameKey]) && is_array($_SESSION[$nameKey])) {
-        foreach ($_SESSION[$nameKey] as $docId => $name) {
+        foreach ($_SESSION[$nameKey] as $docId => $entry) {
+            $originalName = '';
+            $lastModifiedDisplay = '';
+            $lastModifiedWarning = false;
+            if (is_array($entry)) {
+                $originalName = (string) ($entry['original_name'] ?? '');
+                $lastModifiedDisplay = (string) ($entry['last_modified_display'] ?? '');
+                $lastModifiedWarning = !empty($entry['last_modified_warning']);
+            } else {
+                $originalName = (string) $entry;
+            }
             $prefillMeta[(int) $docId] = [
-                'original_name' => (string) $name,
+                'original_name' => $originalName,
+                'last_modified_display' => $lastModifiedDisplay,
+                'last_modified_warning' => $lastModifiedWarning,
             ];
         }
     }
@@ -273,6 +285,8 @@ if ($replaceRequested && count($prefillTokens) > 0 && count($prefillMeta) === 0)
         }
         $prefillMeta[(int) $docId] = [
             'original_name' => (string) ($meta['original_name'] ?? ''),
+            'last_modified_display' => (string) ($meta['last_modified_display'] ?? ''),
+            'last_modified_warning' => !empty($meta['last_modified_warning']),
         ];
     }
 }
@@ -369,11 +383,17 @@ require __DIR__ . '/header.php';
                                 <div class="progress-bar" role="progressbar" style="width: <?php echo $prefillToken !== '' ? '100%' : '0%'; ?>"><?php echo $prefillToken !== '' ? '100%' : '0%'; ?></div>
                             </div>
                             <div class="form-text text-success<?php echo $prefillToken !== '' ? '' : ' d-none'; ?>" id="status-<?php echo (int) $doc['id']; ?>">Upload complete.</div>
+                            <div class="form-text d-none" id="modified-<?php echo (int) $doc['id']; ?>"></div>
                             <?php if ($prefillToken !== ''): ?>
                                 <?php if (is_array($prefillInfo) && $prefillInfo['original_name'] !== ''): ?>
                                     <div class="form-text text-muted">File already uploaded: <?php echo e($prefillInfo['original_name']); ?></div>
                                 <?php else: ?>
                                     <div class="form-text text-muted">File already uploaded and ready for resubmission.</div>
+                                <?php endif; ?>
+                                <?php if (is_array($prefillInfo) && !empty($prefillInfo['last_modified_display'])): ?>
+                                    <div class="form-text <?php echo !empty($prefillInfo['last_modified_warning']) ? 'text-warning' : 'text-muted'; ?>">
+                                        Last modified: <?php echo e($prefillInfo['last_modified_display']); ?>
+                                    </div>
                                 <?php endif; ?>
                             <?php endif; ?>
                             <div class="form-text text-danger d-none" id="error-<?php echo (int) $doc['id']; ?>"></div>
@@ -579,6 +599,7 @@ require __DIR__ . '/header.php';
             const progress = document.getElementById(`progress-${docId}`);
             const bar = progress?.querySelector('.progress-bar');
             const status = document.getElementById(`status-${docId}`);
+            const modified = document.getElementById(`modified-${docId}`);
             const error = document.getElementById(`error-${docId}`);
             const tokenInput = document.getElementById(`uploaded-token-${docId}`);
             const removeButton = document.querySelector(`.remove-upload[data-doc-id="${docId}"]`);
@@ -588,6 +609,12 @@ require __DIR__ . '/header.php';
             }
             if (status) {
                 status.classList.add('d-none');
+            }
+            if (modified) {
+                modified.classList.add('d-none');
+                modified.classList.remove('text-warning');
+                modified.classList.add('text-muted');
+                modified.textContent = '';
             }
             if (error) {
                 error.classList.add('d-none');
@@ -605,6 +632,7 @@ require __DIR__ . '/header.php';
             formData.append('exam_id', examId);
             formData.append('doc_id', docId);
             formData.append('file', file);
+            formData.append('last_modified', file?.lastModified ? String(file.lastModified) : '');
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', 'upload_temp.php');
@@ -630,6 +658,17 @@ require __DIR__ . '/header.php';
                             tokenInput.value = response.token;
                             if (status) {
                                 status.classList.remove('d-none');
+                            }
+                            if (modified && response.last_modified_display) {
+                                modified.textContent = `Last modified: ${response.last_modified_display}`;
+                                modified.classList.remove('d-none');
+                                if (response.last_modified_warning) {
+                                    modified.classList.add('text-warning');
+                                    modified.classList.remove('text-muted');
+                                } else {
+                                    modified.classList.remove('text-warning');
+                                    modified.classList.add('text-muted');
+                                }
                             }
                             if (bar) {
                                 bar.style.width = '100%';
@@ -672,6 +711,7 @@ require __DIR__ . '/header.php';
             const progress = document.getElementById(`progress-${docId}`);
             const bar = progress?.querySelector('.progress-bar');
             const status = document.getElementById(`status-${docId}`);
+            const modified = document.getElementById(`modified-${docId}`);
             const error = document.getElementById(`error-${docId}`);
             const input = document.querySelector(`.file-input[data-doc-id="${docId}"]`);
 
@@ -697,6 +737,12 @@ require __DIR__ . '/header.php';
             }
             if (status) {
                 status.classList.add('d-none');
+            }
+            if (modified) {
+                modified.classList.add('d-none');
+                modified.classList.remove('text-warning');
+                modified.classList.add('text-muted');
+                modified.textContent = '';
             }
             if (error) {
                 error.classList.add('d-none');

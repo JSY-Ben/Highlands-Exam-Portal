@@ -31,16 +31,19 @@ if (is_file($tmpMeta)) {
     @unlink($tmpMeta);
 }
 
-foreach (array_keys($_SESSION) as $key) {
-    if (strpos($key, 'pending_upload_tokens_') !== 0 && strpos($key, 'pending_upload_names_') !== 0) {
+foreach ($_SESSION as $key => $value) {
+    if (strpos($key, 'pending_upload_tokens_') !== 0 || !is_array($value)) {
         continue;
     }
-    if (!is_array($_SESSION[$key])) {
-        continue;
-    }
-    foreach ($_SESSION[$key] as $docId => $value) {
-        if ((string) $value === $token) {
-            unset($_SESSION[$key][$docId]);
+    foreach ($value as $docId => $storedToken) {
+        if ((string) $storedToken !== $token) {
+            continue;
+        }
+        unset($_SESSION[$key][$docId]);
+        $examSuffix = substr($key, strlen('pending_upload_tokens_'));
+        $nameKey = 'pending_upload_names_' . $examSuffix;
+        if (isset($_SESSION[$nameKey]) && is_array($_SESSION[$nameKey])) {
+            unset($_SESSION[$nameKey][$docId]);
         }
     }
 }

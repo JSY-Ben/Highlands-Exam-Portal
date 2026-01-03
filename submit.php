@@ -238,7 +238,11 @@ if (count($existingSubmissions) > 0 && !$replaceConfirmed) {
             }
             $originalName = (string) ($meta['original_name'] ?? '');
             if ($originalName !== '') {
-                $names[(int) $docId] = $originalName;
+                $names[(int) $docId] = [
+                    'original_name' => $originalName,
+                    'last_modified_display' => (string) ($meta['last_modified_display'] ?? ''),
+                    'last_modified_warning' => !empty($meta['last_modified_warning']),
+                ];
             }
         }
         if (count($names) > 0) {

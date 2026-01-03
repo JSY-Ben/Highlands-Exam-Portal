@@ -73,6 +73,17 @@ if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {
 }
 
 $originalName = (string) $_FILES['file']['name'];
+$lastModifiedMs = (int) ($_POST['last_modified'] ?? 0);
+$lastModifiedDisplay = null;
+$lastModifiedWarning = false;
+if ($lastModifiedMs > 0) {
+    $lastModifiedTs = (int) floor($lastModifiedMs / 1000);
+    if ($lastModifiedTs > 0) {
+        $modified = (new DateTimeImmutable('@' . $lastModifiedTs))->setTimezone(new DateTimeZone(date_default_timezone_get()));
+        $lastModifiedDisplay = $modified->format('Y-m-d H:i:s');
+        $lastModifiedWarning = (time() - $lastModifiedTs) > 3600;
+    }
+}
 if (!empty($doc['require_file_type'])) {
     $allowed = parse_allowed_file_types($doc['allowed_file_types'] ?? '');
     if (count($allowed) > 0) {
@@ -107,14 +118,23 @@ $metadata = [
     'original_name' => $originalName,
     'file_size' => (int) $_FILES['file']['size'],
     'uploaded_at' => (new DateTimeImmutable('now'))->format('Y-m-d H:i:s'),
+    'last_modified' => $lastModifiedMs > 0 ? $lastModifiedMs : null,
+    'last_modified_display' => $lastModifiedDisplay,
+    'last_modified_warning' => $lastModifiedWarning ? 1 : 0,
 ];
 
 file_put_contents($tmpMeta, json_encode($metadata, JSON_PRETTY_PRINT));
 
 $_SESSION['pending_upload_tokens_' . $examId][$docId] = $token;
-$_SESSION['pending_upload_names_' . $examId][$docId] = $originalName;
+$_SESSION['pending_upload_names_' . $examId][$docId] = [
+    'original_name' => $originalName,
+    'last_modified_display' => $lastModifiedDisplay ?? '',
+    'last_modified_warning' => $lastModifiedWarning ? 1 : 0,
+];
 
 echo json_encode([
     'token' => $token,
     'original_name' => $originalName,
+    'last_modified_display' => $lastModifiedDisplay,
+    'last_modified_warning' => $lastModifiedWarning,
 ]);
