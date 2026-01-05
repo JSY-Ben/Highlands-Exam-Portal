@@ -31,12 +31,8 @@ if ($fileId <= 0) {
 }
 
 $stmt = db()->prepare(
-<<<<<<< HEAD
-    'SELECT ef.*, e.start_time, e.end_time, e.buffer_pre_minutes, e.buffer_post_minutes, e.is_completed
-=======
     'SELECT ef.*, e.start_time, e.end_time, e.buffer_pre_minutes, e.buffer_post_minutes, e.is_completed,
             e.access_password_hash, e.student_roster_enabled, e.student_roster_mode
->>>>>>> 6046a52 (Add Individual Exam File Logging)
      FROM exam_files ef
      JOIN exams e ON e.id = ef.exam_id
      WHERE ef.id = ?'
